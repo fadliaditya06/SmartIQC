@@ -1,0 +1,99 @@
+﻿@using System.Globalization
+@model List<WristrapCheckModel>
+@using Microsoft.AspNetCore.Http;
+@using P1F_IQC.Function
+
+@{
+    var userLevel = "inspector"; 
+}
+
+<table id="tbl_history" class="table table-sm table-bordered table-striped">
+    <thead class="bg-secondary">
+        <tr style="font-size: 12pt;">
+            <th class="align-middle text-center" style="width: 15%;">Inspector</th>
+            @if (Model.Any(m => string.IsNullOrEmpty(m.result_final)))
+            {
+                <th class="align-middle text-center" style="width: 10%;">Result</th>
+            }
+            @if (Model.Any(m => !string.IsNullOrEmpty(m.result_final)))
+            {
+                <th class="align-middle text-center" style="width: 10%;">Final Result</th>
+            }
+            <th class="align-middle text-center" style="width: 15%;">Date</th>
+            <th class="align-middle text-center" style="width: 15%;">Date update</th>
+            <th class="align-middle text-center" style="width: 5%;">Shift</th>
+            <th class="align-middle text-center" style="width: 10%;">Location</th>
+            @if (Model.Any(m => !string.IsNullOrEmpty(m.remark)))
+            {
+                <th class="align-middle text-center" style="width: 25%;">Remark</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mat in Model)
+        {
+            <tr class="align-middle" style="font-size: 12pt;">
+               <td class="text-center align-middle pl-2">
+                    @(!string.IsNullOrEmpty(mat.name) ? mat.name : mat.inspector)
+               </td>
+                @if (string.IsNullOrEmpty(mat.result_final))
+                {
+                    <td class="text-center align-middle @(mat.result == "OK" ? "bg-success text-light" : (mat.result == "NG" ? "bg-danger text-light" : ""))">@mat.result</td>
+                }
+                @if (!string.IsNullOrEmpty(mat.result_final))
+                {
+                    <td class="text-center align-middle @(mat.result_final == "OK" ? "bg-success text-light" : "")">@mat.result_final</td>
+                }
+                <td class="text-center align-middle">@mat.date</td>
+                <td class="text-center align-middle">@mat.record_date</td>
+                <td class="text-center align-middle">@mat.shift</td>
+                <td class="text-center align-middle">@mat.location</td>
+                @if (!string.IsNullOrEmpty(mat.remark))
+                {
+                    <td class="text-center align-middle">Recorded NG at @mat.date : "@mat.remark"</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .dropdown-menu {
+        padding: 10px;
+    }
+
+    .dropdown-item {
+        margin-bottom: 10px;
+    }
+
+    .dropdown-toggle {
+        background-color: #337ab7; 
+        border-color: #2e6da4; 
+        color: #fff; 
+    }
+
+    #tbl_history {
+        margin: 0 auto;
+    }
+
+    #tbl_history th, #tbl_history td {
+        padding: 10px;
+    }
+
+    #tbl_history tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    #tbl_history tr:hover {
+        background-color: #ddd;
+    }
+
+    .btn-circle {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 6px;
+        font-size: 12px;
+        margin: 5px;
+    }
+</style>

@@ -1,0 +1,359 @@
+﻿@using P1F_IQC.Models
+@model List<CapabilityModel>
+
+@{
+    ViewData["Title"] = "Capability";
+}
+
+<style>
+    :root {
+        --primary-green: #28a745;
+        --dark-green: #1e7e34;
+        --light-bg: #f4f7f6;
+        --border-color: #e0e0e0;
+    }
+
+    /* Kontainer Utama */
+    .capability-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    /* Tab Navigasi Modern */
+    .capability-nav-wrapper {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .capability-nav-horizontal {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-item-capsule {
+        padding: 8px 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 50px; /* Fully Rounded */
+        background-color: white;
+        color: #555;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.9rem;
+    }
+
+    .nav-item-capsule:hover {
+        border-color: var(--primary-green);
+        color: var(--primary-green);
+        background-color: rgba(40, 167, 69, 0.05);
+    }
+
+    .nav-item-capsule.active {
+        background-color: var(--primary-green);
+        color: white;
+        border-color: var(--primary-green);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    }
+
+    /* Area Display Konten */
+    .capability-display {
+        margin: 40px auto;
+        padding: 30px;
+        width: 95%;
+        min-height: 550px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03); /* Soft Shadow */
+    }
+
+    /* Badge Judul di Tengah Border */
+    #dynamicTitleContainer {
+        position: absolute;
+        top: -15px;
+        background-color: white;
+        padding: 0 25px;
+        z-index: 10;
+    }
+
+    #imageCaption {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--dark-green);
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    /* Image Display */
+    #displayWrapper {
+        width: 100%;
+        height: 100%;
+        min-height: 480px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #fafafa; 
+        transition: transform 0.3s ease;
+    }
+
+    #displayWrapper:hover {
+        cursor: zoom-in;
+    }
+
+    #infoImage {
+        max-width: 100%;
+        max-height: 480px;
+        object-fit: contain;
+        transition: all 0.4s ease;
+        filter: drop-shadow(0 5px 15px rgba(0,0,0,0.08));
+    }
+
+    /* Animations */
+    .fade-loading {
+        opacity: 0.3;
+        transform: scale(0.98);
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .modal-header {
+        border-bottom: none;
+        padding: 20px 30px;
+    }
+
+    .modal-body {
+        padding: 0 30px 30px 30px;
+    }
+
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-cogs text-success"></i>
+                <b>Capability</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card capability-card shadow-sm">
+                    <div class="capability-nav-wrapper">
+                        <ul class="capability-nav-horizontal" id="capabilityMenu">
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <li class="nav-item-capsule" data-target="@item.capability_picture">
+                                        @item.capability_name
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="text-muted">No Capabilities Defined</li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="capability-display">
+                            <div id="dynamicTitleContainer">
+                                <h4 id="imageCaption"></h4>
+                            </div>
+
+                            <div id="displayWrapper">
+                                <img id="infoImage" src="~/images/not_available.png" alt="Capability Detail" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="imageDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Image Detail</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid rounded mt-3" alt="Full Detail" style="max-height: 80vh;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const logoPath = '@Url.Content("~/images/capability/")';
+            const fallbackImg = '@Url.Content("~/images/not_available.png")';
+
+            // Event handler untuk klik capsule
+            $('.nav-item-capsule').on('click', function () {
+                const $this = $(this);
+                const fileName = $this.data('target');
+                const title = $this.text().trim();
+                const $img = $('#infoImage');
+
+                $('.nav-item-capsule').removeClass('active');
+                $this.addClass('active');
+
+                $('#imageCaption').text(title);
+                $img.addClass('fade-loading');
+
+                const testImg = new Image();
+                const fullPath = fileName ? (logoPath + fileName) : fallbackImg;
+
+                testImg.onload = function() {
+                    $img.attr('src', fullPath).removeClass('fade-loading');
+                };
+
+                testImg.onerror = function() {
+                    $img.attr('src', fallbackImg).removeClass('fade-loading');
+                };
+
+                testImg.src = fullPath;
+            });
+
+            const firstCapsule = $('.nav-item-capsule').first();
+            if (firstCapsule.length > 0) {
+                firstCapsule.click();
+            } else {
+                $('#imageCaption').text("Data Not Available");
+            }
+
+            // Zoom Modal
+            $('#displayWrapper').on('click', function() {
+                const currentSrc = $('#infoImage').attr('src');
+                const currentTitle = $('#imageCaption').text();
+
+                $('#modalImage').attr('src', currentSrc);
+                $('#modalTitle').html(`<i class="fas fa-search-plus mr-2"></i> Detail ${currentTitle}`);
+                $('#imageDetailModal').modal('show');
+            });
+        });
+    </script>
+}

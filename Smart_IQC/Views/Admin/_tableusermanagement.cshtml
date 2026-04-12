@@ -1,0 +1,199 @@
+﻿@model List<UserManagementModel>
+@using Microsoft.AspNetCore.Http;
+@using P1F_IQC.Function
+
+<div class="table-responsive">
+    <table id="tbl_user" class="table professional-table table-sm table-hover" style="width: 100%; border: 1px solid #dee2e6;">
+        <thead>
+            <tr style="font-size: 13px; letter-spacing: 0.5px;">
+               @*  <th class="text-center align-middle" width="5%">
+                    <input type="checkbox" id="checkAll" onClick="toggle(this)" />
+                </th> *@
+                <th class="text-center align-middle border-left">SESA ID</th>
+                <th class="text-center align-middle border-left">Name</th>
+                <th class="text-center align-middle border-left">Email</th>
+                <th class="text-center align-middle border-left">Department</th>
+                <th class="text-center align-middle border-left">Level</th>
+                <th class="text-center align-middle border-left">Role</th>
+                <th class="align-middle text-center" style="width: 5%;">Access</th>
+                <th class="text-center align-middle border-left">Record Date</th>
+                <th class="text-center align-middle border-left">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mat in Model)
+            {
+                <tr class="align-middle" style="font-size: 13px;">
+                    @* <td class="text-center align-middle">
+                        <input type="checkbox" name="foo" class="select_item" value="@mat.id_user" />
+                    </td> *@
+                    <td class="text-center align-middle border-left font-weight-bold text-secondary">@mat.sesa_id</td>
+                    <td class="text-center align-middle border-left font-weight-bold text-dark">@mat.name</td>
+                    <td class="text-center align-middle border-left text-muted">
+                        @(string.IsNullOrWhiteSpace(mat.email) ? "-" : mat.email)
+                    </td>
+                    <td class="text-center align-middle border-left">
+                        @(string.IsNullOrWhiteSpace(mat.dept_id) ? "-" : mat.dept_id)
+                    </td>
+                    <td class="text-center align-middle border-left">
+                        @if (mat.level?.ToLower() == "admin")
+                        {
+                            <span class="badge badge-admin">Admin</span>
+                        }
+                        else if (mat.level?.ToLower() == "inspector")
+                        {
+                            <span class="badge badge-inspector">Inspector</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-light border">@(mat.level ?? "-")</span>
+                        }
+                    </td>
+                    <td class="text-center align-middle border-left">
+                        <span class="text-muted">
+                            @(string.IsNullOrWhiteSpace(mat.roles) || mat.roles == "-" ? "-" : mat.roles)
+                        </span>
+                    </td>
+                    <td class="text-center align-middle">@mat.apps_id</td>
+                    <td class="text-center align-middle border-left text-secondary">@mat.record_date</td>
+                    <td class="text-center border-left">
+                        <div class="d-flex justify-content-center">
+                            <button class="btn btn-edit mr-1" title="Edit"
+                                    onclick="btn_edit('@mat.id_user','@mat.sesa_id','@mat.name','@mat.password','@mat.email','@mat.level','@mat.apps_id','@mat.dept_id','@mat.roles')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+
+                            <button class="btn btn-delete" title="Delete"
+                                    onclick="btn_delete('@mat.id_user')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    /* Reset & Dasar Tabel */
+    #tbl_user {
+        background-color: white;
+        border-collapse: collapse !important; 
+    }
+
+    /* Gaya Tombol Edit (Kuning) */
+    .btn-edit {
+        background-color: #ffc107;
+        color: #333;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    /* Gaya Tombol Delete (Merah) */
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    .btn-edit i, .btn-delete i {
+        font-size: 11px;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .btn-delete-minimal:hover {
+        background-color: #c82333;
+        color: white;
+    }
+
+    .btn-edit i, .btn-delete i {
+        font-size: 11px;
+    }
+
+    /* Sel Pemisah Antar Kolom */
+    .border-left {
+        border-left: 1px solid #dee2e6 !important;
+    }
+
+    /* Body Styling */
+    #tbl_user tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+        color: #333;
+    }
+
+    /* Hover tanpa animasi gerak */
+    #tbl_user tbody tr:hover {
+        background-color: #f8f9fa !important;
+    }
+
+    /* Badge Modern */
+    .badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+    .badge-admin { background-color: #e3f2fd; color: #0d47a1; }
+    .badge-inspector { background-color: #FFD700; color: #424242; border: 1px solid #FFEA00; }
+
+    /* Action Button Minimalis */
+    .btn-action-minimal {
+        background: transparent;
+        border: none;
+        color: #6c757d;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-action-minimal:hover { 
+        background-color: #e9ecef; 
+        color: #3dcd58; 
+    }
+    .btn-action-minimal:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Dropdown Menu Styling */
+    .dropdown-menu {
+        z-index: 1050;
+        font-size: 14px;
+        margin-top: 0;
+        border-radius: 8px;
+        padding: 5px; 
+    }
+
+    /* Hover untuk Menu Edit */
+    .dropdown-item.hover-edit:hover {
+        background-color: #FFF9C4 !important; 
+        color: #333;
+        border-radius: 4px;
+    }
+
+    /* Hover untuk Menu Delete */
+    .dropdown-item.hover-delete:hover {
+        background-color: #FFEBEE !important; 
+        color: #d32f2f !important;
+        border-radius: 4px;
+    }
+</style>

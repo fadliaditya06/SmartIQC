@@ -1,0 +1,161 @@
+﻿@model List<CommodityModel>
+@using Microsoft.AspNetCore.Http;
+@using P1F_IQC.Function
+
+<table id="tbl_category" class="table professional-table table-sm table-hover" style="width: 100%; border: 1px solid #dee2e6;">
+    <thead>
+        <tr style="font-size: 13px; letter-spacing: 0.5px; background-color: #3dcd58; color: white;">
+            <th class="text-center align-middle border-left" style="width: 10%;">No</th>
+            <th class="text-center align-middle border-left" style="width: 20%; padding-left: 15px;">Category ID</th>
+            <th class="text-center align-middle border-left">Category Name</th>
+            <th class="text-center align-middle border-left" width="10%">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr style="font-size: 13px;">
+                <td class="text-center border-left index-column"></td>
+                <td class="border-left font-weight-bold" style="text-align: center !important;">@item.Commodity</td>
+                <td class="text-center border-left text-dark">@item.Commodity_Name</td>
+                <td class="text-center border-left">
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-edit mr-1" title="Edit"
+                                onclick="btn_edit('@item.Commodity','@item.Commodity_Name')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+
+                        <button class="btn btn-delete" title="Delete"
+                                onclick="btn_delete('@item.Commodity')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+                <td style="display:none;">@item.Commodity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    /* Reset & Dasar Tabel */
+    #tbl_category {
+        background-color: white;
+        border-collapse: collapse !important; 
+    }
+
+    /* Gaya Tombol Edit (Kuning) */
+    .btn-edit {
+        background-color: #ffc107;
+        color: #333;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    /* Gaya Tombol Delete (Merah) */
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    .btn-edit i, .btn-delete i {
+        font-size: 11px;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .btn-delete-minimal:hover {
+        background-color: #c82333;
+        color: white;
+    }
+
+    .btn-edit i, .btn-delete i {
+        font-size: 11px;
+    }
+
+    /* Sel Pemisah Antar Kolom */
+    .border-left {
+        border-left: 1px solid #dee2e6 !important;
+    }
+
+    /* Body Styling */
+    #tbl_category tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+        color: #333;
+    }
+
+    /* Hover tanpa animasi gerak */
+    #tbl_category tbody tr:hover {
+        background-color: #f8f9fa !important;
+    }
+
+    /* Badge Modern */
+    .badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+    .badge-admin { background-color: #e3f2fd; color: #0d47a1; }
+    .badge-inspector { background-color: #FFD700; color: #424242; border: 1px solid #FFEA00; }
+
+    /* Action Button Minimalis */
+    .btn-action-minimal {
+        background: transparent;
+        border: none;
+        color: #6c757d;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-action-minimal:hover { 
+        background-color: #e9ecef; 
+        color: #3dcd58; 
+    }
+    .btn-action-minimal:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Dropdown Menu Styling */
+    .dropdown-menu {
+        z-index: 1050;
+        font-size: 14px;
+        margin-top: 0;
+        border-radius: 8px;
+        padding: 5px; 
+    }
+
+    /* Hover untuk Menu Edit */
+    .dropdown-item.hover-edit:hover {
+        background-color: #FFF9C4 !important; /* Kuning sangat pucat/tipis */
+        color: #333;
+        border-radius: 4px;
+    }
+
+    /* Hover untuk Menu Delete */
+    .dropdown-item.hover-delete:hover {
+        background-color: #FFEBEE !important; /* Merah sangat pucat/tipis */
+        color: #d32f2f !important;
+        border-radius: 4px;
+    }
+</style>

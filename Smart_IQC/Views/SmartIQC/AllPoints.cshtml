@@ -1,0 +1,282 @@
+﻿@using P1F_IQC.Models
+@using Microsoft.AspNetCore.Http
+@model ViewModel
+
+<style>
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+
+    .modal-dialog {
+        max-width: 110% !important;
+        height: 100%;
+        padding: 0;
+        margin: 0 auto;
+    }
+
+    .modal {
+        padding-right: 4px !important;
+        padding: .5%;
+    }
+    /* Glow */
+    .effect:hover, .effect:focus, .effect:active {
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* DataTable Filter Row Styling */
+    .filter-row {
+        background-color: #f4f4f4;
+    }
+
+    .filter-row th {
+        padding: 5px !important;
+    }
+
+    .filter-row .column-filter {
+        width: 100%;
+        min-width: 90px;
+        font-size: 8pt;
+        border: 1px solid #d2d6de;
+    }
+
+    /* Ensure filter inputs are visible and styled consistently */
+    #table_details thead tr.filter-row th input {
+        display: block;
+        width: 100%;
+        height: calc(1.5em + .5rem + 2px);
+        padding: .25rem .5rem;
+        font-size: 8pt;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    body.modal-open {
+        overflow: hidden !important;
+        padding-right: 0px !important;
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-check-double text-success"></i>
+                <b>All Points</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="dashboard-card card-light">
+                    <div class="card-body">
+                        <div id="spinner_loading" style="display: none;">
+                            <div class="d-flex justify-content-center align-items-center text-center">
+                                <strong>Loading...</strong><br>
+                                <div class="spinner-border spinner-border-sm ml-3" role="status" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                        <div id="spinner_filter" style="display: none;">
+                            <div class="d-flex justify-content-center align-items-center text-center">
+                                <strong>Loading Filter...</strong>
+                                <div class="spinner-border spinner-border-sm ml-3" role="status" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3 table-responsive" id="tblDetails" style="overflow-x: auto; white-space: nowrap; scrollbar-width: thin; scroll-behavior: smooth;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Fungsi untuk menginialisasi DataTable dan mengambil data dari ShowAllPoints
+        function table_apply() {
+            $("#spinner_loading").show();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ShowAllPoints", "SmartIQC")',
+                data: {
+                    date_from: $('#date_from').val(),
+                    date_to: $('#date_to').val(),
+                    cell_name: $('#select_cell_name').val(),
+                    family: $('#select_family').val()
+                },
+                success: function (data) {
+                    $("#tblDetails").html(data);
+
+                    // 1. Inisialisasi DataTable
+                    var table = $("#table_details").DataTable({
+                        "paging": true,
+                        "searching": true,
+                        "ordering": true,
+                        "order": [],
+                        "info": true,
+                        "columnDefs": [{ "targets": 0, "type": "report-id-numeric" }],
+                        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                        "pageLength": 25,
+                        "initComplete": function () {
+                            var api = this.api();
+
+                            var filterRow = $('<tr class="filter-row"></tr>');
+
+                            api.columns().every(function () {
+                                var column = this;
+                                var title = $(column.header()).text();
+                                var filterCell = $('<th></th>');
+
+                                var input = $('<input type="text" class="form-control form-control-sm column-filter text-center" placeholder="Filter ' + title + '" />');
+
+                                input.on('keyup change clear', function () {
+                                    if (column.search() !== this.value) {
+                                        column.search(this.value).draw();
+                                    }
+                                });
+
+                                filterCell.append(input);
+                                filterRow.append(filterCell);
+                            });
+
+                 
+                            $(api.table().header()).append(filterRow);
+                        }
+                    });
+
+                    $("#spinner_loading").hide();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            table_apply();
+        });
+
+        // Function to sortir number
+        jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+            "report-id-numeric-asc": function (a, b) {
+                var x = parseInt(a.split('-')[0], 10);
+                var y = parseInt(b.split('-')[0], 10);
+
+                if (isNaN(x)) x = 0;
+                if (isNaN(y)) y = 0;
+
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            },
+
+            "report-id-numeric-desc": function (a, b) {
+                var x = parseInt(a.split('-')[0], 10);
+                var y = parseInt(b.split('-')[0], 10);
+
+                if (isNaN(x)) x = 0;
+                if (isNaN(y)) y = 0;
+
+                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+            }
+        });
+    </script>
+}

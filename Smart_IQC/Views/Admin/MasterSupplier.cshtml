@@ -1,0 +1,458 @@
+﻿@using P1F_IQC.Function
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    DateTime dt = DateTime.Now;
+    var Month = dt.ToString("MMMM");
+
+    if (HttpContextAccessor.HttpContext.Session == null)
+    {
+        Url.Action("Logout", "Home");
+    }
+}
+
+<style>
+    .container {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 12px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    /* Modal Add dan Edit */
+    #modal_add, #modal_edit {
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #modal_add .modal-header h5, #modal_edit .modal-header h5 {
+        font-weight: 600px;
+        margin: 0;
+    }
+
+    #modal_add .modal-body, #modal_edit .modal-body {
+        padding: 20px;
+    }
+
+    #modal_add .form-group, #modal_edit .form-group {
+        margin-bottom: 20px;
+    }
+
+    #modal_add .form-control, #modal_edit .form-control {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px; /* Perubahan ukuran font */
+    }
+
+    #modal_add .form-control:focus, #modal_edit .form-control:focus {
+        border-color: #3dcd58;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #modal_add .form-control:hover, #modal_edit .form-control:hover {
+        border-color: #aaa; /* Tambahkan warna hover */
+    }
+
+    #modal_add .btn, #modal_edit .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #3dcd58;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease; /* Tambahkan animasi */
+    }
+
+    #modal_add .btn:hover, #modal_edit .btn:hover {
+        background-color: #2ecc71;
+    }
+
+    #modal_add .btn:active, #modal_edit .btn:active {
+        background-color: #27ae60;
+    }
+
+    #modal_add .form-control select, #modal_edit .form-control select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        height: 40px;
+        background-color: #fff;
+        color: #333;
+        font-size: 16px;
+        vertical-align: middle;
+    }
+
+    #modal_add .form-control select:focus, #modal_edit .form-control select:focus {
+        border-color: #3dcd58;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #modal_add .form-control select option, #modal_edit .form-control select option {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    #modal_add .form-control select option:hover, #modal_edit .form-control select option:hover {
+        background-color: #f9f9f9;
+    }
+
+    .select2-container .select2-selection--single .select2-selection__placeholder {
+        font-size: 14px !important;
+        color: #999;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        font-size: 14px !important; 
+    }
+
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-truck text-success"></i>
+                <b>Master Supplier</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="dashboard-card">
+                    <div class="card-body">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <button class="btn btn-primary btn-sm mr-2" onclick="addData()">
+                                    <i class="fa fa-plus"></i> Add Supplier
+                                </button>
+
+                                <button id="btn_reset" name="btn_reset" class="btn btn-sm btn-warning" onclick="window.location.reload()">
+                                    <i class="fa fa-history mr-1"></i> Refresh Data
+                                </button>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-12" id="FilteredTable">
+                                    <div id="spinner_loading" class="text-center mt-2">
+                                        <i class="fas fa-spinner fa-spin fa-lg" style="font-size:30pt;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Add Supplier *@
+<div id="modal_add" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus mr-2"></i> Add Supplier</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="sesa_id">Supplier Name <span style="color: red">*</span></label>
+                            <input type="text" id="supplier_name" name="supplier_name" placeholder="Supplier Name" class="form-control form-control-sm" autocomplete="off" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Vendor Code <span style="color: red">*</span></label>
+                            <input id="vendor_code" class="form-control form-control-sm" placeholder="Vendor Code" style="width: 100%;" autocomplete="off" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Submit Button -->
+            <center>
+                <div class="col-6 text-center p-4">
+                    <button class="btn btn-success btn-block" id="AddSupplier">
+                        <i class="fas fa-paper-plane mr-1"></i> Submit
+                    </button>
+                </div>
+            </center>
+        </div>
+    </div>
+</div>
+
+@* Modal Edit Supplier *@
+<div id="modal_edit" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit mr-2"></i> Edit Supplier</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="e_id_supplier" />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="sesa_id">Supplier Name <span style="color: red">*</span></label>
+                            <input type="text" id="supplier_name" name="supplier_name" placeholder="Supplier Name" class="form-control form-control-sm" autocomplete="off" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Vendor Code <span style="color: red">*</span></label>
+                            <input id="vendor_code" class="form-control form-control-sm" placeholder="Vendor Code" style="width: 100%;" autocomplete="off" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Submit Button -->
+            <center>
+                <div class="col-6 text-center p-4">
+                    <button class="btn btn-success btn-block" id="EditSupplier" onclick="verify_save()">
+                        <i class="fas fa-paper-plane mr-1"></i> Save
+                    </button>
+                </div>
+            </center>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Inisialisasi awal saat halaman dimuat
+            GetSupplierData();
+
+            // Event Listener untuk Tombol Add Supplier 
+            $("#AddSupplier").click(function () {
+                var supplier_name = $('#modal_add #supplier_name').val();
+                var vendor_code = $('#modal_add #vendor_code').val();
+
+                if (supplier_name === '' || vendor_code === '') {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Please fill in all required fields!' });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("AddMasterSupplier", "Admin")",
+                    data: { supplier_name: supplier_name, vendor_code: vendor_code },
+                    success: function (data) {
+                        if (data.success) {
+                            Swal.fire('Added!', 'Supplier added successfully.', 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Fungsi Mengambil Data Tabel
+        function GetSupplierData() {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetSupplierData", "Admin")",
+                success: function (data) {
+                    $("#FilteredTable").html(data);
+
+                    var table = $("#tbl_supplier").DataTable({
+                        "destroy": true,
+                        "paging": true,
+                        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                        "pageLength": 25,
+                        "order": [[4, 'desc']],
+                        "columnDefs": [
+                            { "searchable": false, "orderable": false, "targets": [0] }, 
+                            { "visible": false, "targets": [4] } 
+                        ],
+                        "drawCallback": function() {
+                            $('.dropdown-toggle').dropdown();
+                        }
+                    });
+                  
+                    // Logika Penomoran 
+                    table.on('order.dt search.dt', function () {
+                        table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                            cell.innerHTML = i + 1;
+                        });
+                    }).draw();
+                }
+            });
+        }
+
+        // Fungsi Tombol Add 
+        function addData() {
+            $('#modal_add input').val(''); 
+            $('#modal_add').modal('show');
+        }
+
+        // Fungsi Tombol Edit 
+        function btn_edit(id_supplier, supplier_name, vendor_code) {
+            $('#e_id_supplier').val(id_supplier);
+            $('#modal_edit #supplier_name').val(supplier_name);
+            $('#modal_edit #vendor_code').val(vendor_code);
+            $("#modal_edit").modal('show');
+        }
+
+        // Fungsi Simpan Perubahan Edit dipanggil dari onclick
+        function verify_save() {
+            var id_supplier = $('#e_id_supplier').val();
+            var supplier_name = $('#modal_edit #supplier_name').val();
+            var vendor_code = $('#modal_edit #vendor_code').val();
+
+            if (!supplier_name || !vendor_code) {
+                Swal.fire({ icon: 'error', title: 'Failed', text: 'All fields are required!' });
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("UpdateDataSupplier", "Admin")",
+                data: { id_supplier: id_supplier, supplier_name: supplier_name, vendor_code: vendor_code },
+                success: function (data) {
+                    if (data == 1 || data.success) {
+                        Swal.fire('Success!', 'Data supplier successfully updated.', 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Failed', data.message || 'Update failed.', 'error');
+                    }
+                }
+            });
+        }
+
+        // Fungsi Delete Tunggal dipanggil dari onclick
+        function btn_delete(id) {
+            Swal.fire({
+                title: 'Confirm Delete?',
+                text: "Delete this Data Supplier?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, Delete!',
+                preConfirm: function () {
+                    return $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("DeleteDataSupplier", "Admin")",
+                        data: { supplier_id: id },
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Deleted!', 'Data supplier successfully deleted.', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

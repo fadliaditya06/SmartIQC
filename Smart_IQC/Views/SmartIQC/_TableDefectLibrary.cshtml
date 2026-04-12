@@ -1,0 +1,29 @@
+﻿@model List<P1F_IQC.Models.DefectLibraryModel>
+
+<table id="defectTable" class="table professional-table table-sm table-hover" style="width: 100%; border: 1px solid #dee2e6;">
+    <thead>
+        <tr>
+            <th class="text-center align-middle" style="width: 15%;">Defect Code</th>
+            <th class="text-left align-middle border-left" style="padding-left: 15px;">Defect Name</th>
+            <th class="text-center align-middle border-left" style="width: 20%;">Defect Picture</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr style="font-size: 13px;">
+                <td class="text-center font-weight-bold">@item.defect_code</td>
+                <td class="border-left" style="text-align: center !important; padding-left: 15px;">@item.defect_name</td>
+                <td class="text-center border-left">
+                    @{
+                        var imgPath = string.IsNullOrEmpty(item.defect_picture)
+                        ? Url.Content("~/images/not_available.png")
+                        : Url.Content("~/images/defects/" + item.defect_picture);
+                    }
+                    <img src="@imgPath" class="img-thumbnail" style="height: 50px; cursor:pointer"
+                         onclick="showImageModal('@imgPath', '@item.defect_name')">
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,100 @@
+﻿@using P1F_IQC.Function
+@model ViewModel
+@using P1F_IQC.Models
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    if (HttpContextAccessor.HttpContext.Session == null)
+    {
+        Url.Action("SignOut", "Login");
+    }
+}
+
+<table id="table_details" class="table professional-table table-sm small table-striped table-bordered" style="width:100%;">
+    <thead>
+        <tr class="bg-info text-white text-center">
+            <th class="align-middle text-center"><i class="fas fa-file-alt text-white"></i><br>Report ID</th>
+            <th class="align-middle text-center"><i class="fas fa-cube text-white"></i><br>Category</th>
+            <th class="align-middle text-center"><i class="fas fa-truck text-white"></i><br>Supplier</th>
+            <th class="align-middle text-center"><i class="fas fa-tag text-white"></i><br>Part Number</th>
+            <th class="align-middle text-center"><i class="fas fa-exclamation-circle text-white"></i><br>Criticality</th>
+            <th class="align-middle text-center"><i class="fas fa-calendar-alt text-white"></i><br>Record Date</th>
+            <th class="align-middle text-center"><i class="fas fa-exclamation-triangle text-white"></i><br>Defect Description</th>
+            <th class="align-middle text-center"><i class="fas fa-check text-white"></i><br>Status</th>
+            <th class="align-middle text-center"><i class="fas fa-user-tie text-white"></i><br>PIC</th>
+            <th class="align-middle text-center"><i class="fas fa-check-circle text-white"></i><br>PIC Status</th>
+            <th class="align-middle text-center"><i class="fas fa-comment-dots text-white"></i><br>Comment</th>
+        </tr>
+    </thead>
+    <tbody id="table_body">
+        @if (Model.OpenPointsDetails != null && Model.OpenPointsDetails.Any())
+        {
+            foreach (var item in Model.OpenPointsDetails)
+            {
+                bool isNOK = item.Status == "NOK";
+
+                string statusClass = "";
+                if (item.Status == "OK") statusClass = "bg-success text-white";
+                else if (item.Status == "NOK") statusClass = "bg-danger text-white";
+                else if (item.Status == "N/A") statusClass = "bg-warning text-dark";
+
+                <tr>
+
+                    <td class="align-middle" style="text-align: left !important;">@item.Report_ID</td>
+                   
+                    <td class="align-middle">@item.Category</td>
+
+                    <td class="align-middle" style="text-align: left !important;">@item.Supplier_Name</td>
+                  
+                    <td class="align-middle text-center">@item.Part_Number</td>
+                   
+                    <td class="align-middle text-center">@item.Critical_Part_Status</td>
+
+                    <td class="align-middle text-center">@item.Record_Date.ToString("dd/MM/yyyy")</td>
+                   
+                    <td class="align-middle" style="text-align: left !important;">@(isNOK? item.Requirement: "")</td>
+
+                    <td class="align-middle text-center @statusClass" style="font-size:8pt; font-weight: normal;">
+                        @item.Status
+                    </td>
+                    
+                    <td class="align-middle text-center">@(isNOK? item.PIC_Name: "")</td>
+
+                    @if (isNOK)
+                    {
+                        if (item.PIC_Status == 0)
+                        {
+                            <td class="align-middle text-center bg-secondary " style="font-size:8pt;">Open</td>
+                        }
+                        else if (item.PIC_Status == 1)
+                        {
+                            <td class="align-middle text-center bg-danger" style="font-size:8pt;">Waiting Verification</td>
+                        }
+                        else if (item.PIC_Status == 2)
+                        {
+                            <td class="align-middle text-center bg-success" style="font-size:8pt;">Closed</td>
+                        }
+                        else
+                        {
+                            <td class="align-middle text-center bg-secondary" style="font-size:8pt;">Unknown</td>
+                        }
+                    }
+                    else
+                    {
+                        <td class="align-middle text-center"></td>
+                    }
+
+                    <td class="align-middle">@(isNOK? item.Comment: "")</td>
+
+                </tr>
+            }
+        }
+        else
+        {
+            <tr class="text-center">
+                <td colspan="10" class="align-middle">No All Points Data to Display</td>
+            </tr>
+        }
+    </tbody>
+</table>

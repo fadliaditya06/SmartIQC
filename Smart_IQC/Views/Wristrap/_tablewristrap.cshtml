@@ -1,0 +1,464 @@
+﻿@model List<THCheckModel>
+@using Microsoft.AspNetCore.Http
+@using System.Data
+@using System.Text.RegularExpressions
+@using P1F_IQC.Function
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var dataSet2 = ViewBag.DataSet2 as DataSet;
+    var loggedInUserName = User.FindFirst("p1f_iqc_name")?.Value;
+
+    // Create a dictionary to store the columns grouped by day of the week
+    var dayColumns = new Dictionary<string, List<DataColumn>>();
+    foreach (DataColumn column in dataSet2.Tables[0].Columns)
+    {
+        if (column.ColumnName != "wristrap")
+        {
+            var match = Regex.Match(column.ColumnName, @"^(.+)(\d{4}-\d{2}-\d{2})(\d)$");
+            if (match.Success)
+            {
+                var day = match.Groups[1].Value;
+                if (!dayColumns.ContainsKey(day))
+                {
+                    dayColumns.Add(day, new List<DataColumn>());
+                }
+                dayColumns[day].Add(column);
+            }
+        }
+    }
+
+    // Filter the rows based on the logged-in user's name
+    var filteredRows = dataSet2.Tables[0].AsEnumerable()
+        .CopyToDataTable();
+}
+
+<table id="tbl_wristrap" class="table professional-table table-bordered table-striped" style="width: 100%; max-width: 100%; overflow-x: auto;">
+    <thead>
+        <tr class="text-center" style="font-size:10pt">
+            <th class="font-calibri align-middle text-center text-light border-right" style="width:20%; border-right: 1px solid white !important;">Wriststrap</th>
+            @foreach (var day in dayColumns.Keys)
+            {
+                <th class="font-calibri border-right align-middle text-center text-white p-2" style="width: 10%; border-right: 1px solid white !important;">@day</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DataRow row2 in filteredRows.Rows)
+        {
+            <tr style="font-size:10pt">
+                <td class="bg-secondary text-light text-center align-middle" style="font-size:10pt; width: 20%">@row2["wristrap"]</td>
+                @foreach (var day in dayColumns.Keys)
+                {
+                    <td class="align-middle text-center">
+                        @foreach (var column in dayColumns[day])
+                        {
+                            var match = Regex.Match(column.ColumnName, @"^(.+)(\d{4}-\d{2}-\d{2})(\d)$");
+                            if (match.Success)
+                            {
+                                var date = match.Groups[2].Value;
+                                var shift = match.Groups[3].Value;
+                                var shiftStartTime = shift switch
+                                {
+                                    "1" => "06:00:00",
+                                    "2" => "15:00:00",
+                                    "3" => "23:00:00",
+                                    _ => "00:00:00"
+                                };
+                                var shiftEndTime = shift switch
+                                {
+                                    "1" => "14:59:00",
+                                    "2" => "22:59:00",
+                                    "3" => "05:59:00",
+                                    _ => "23:59:00"
+                                };
+
+                                // Check if the current time is after the shift end time for today
+
+                                bool isShiftPassed = DateTime.Parse(date) < DateTime.Today ||
+                                (DateTime.Parse(date) == DateTime.Today && DateTime.Now.TimeOfDay > TimeSpan.Parse(shiftEndTime));
+
+                                // Check if the shift is currently active
+
+                                bool isShiftActive = DateTime.Parse(date) == DateTime.Today &&
+                                DateTime.Now.TimeOfDay >= TimeSpan.Parse(shiftStartTime) &&
+                                DateTime.Now.TimeOfDay <= TimeSpan.Parse(shiftEndTime);
+
+                                string buttonClass = row2[column.ColumnName]?.ToString() ?? string.Empty;
+                                string buttonDisabled = (buttonClass == "warning" && isShiftPassed && !isShiftActive) ? "disabled" : "";
+
+                                string iconClass = buttonClass switch
+                                {
+                                    "success" => "fa fa-check",
+                                    "warning" => "fa fa-spinner",
+                                    "dark" => "fa fa-clock",
+                                    "danger" => "fas fa-times",
+                                    "primary" => "fa fa-info",
+                                    _ => ""
+                                };
+
+                                if (row2[column.ColumnName].ToString() == "dark")
+                                {
+                                    <button class="btn btn-sm btn-uniform btn-@buttonClass" disabled>@shift</button>
+                                }
+                                else if (row2[column.ColumnName].ToString() == "warning")
+                                {
+                                    if (isShiftPassed && !isShiftActive)
+                                    {
+                                        <button class="btn btn-sm btn-uniform btn-warning" disabled>@shift</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-uniform btn-warning" onclick="showModal(@row2["id_wristrap"], '@row2["wristrap"]', '@shift', '@date')">@shift</button>
+                                    }
+                                }
+                                else
+                                {
+                                    if (DateTime.Parse(date) == DateTime.Today)
+                                    {
+                                        @if (buttonClass == "success")
+                                        {
+                                            <button class="btn btn-sm btn-uniform btn-@buttonClass" onclick="opendetailsok('@row2["wristrap"]', '@shift', '@date')">@shift</button>
+                                        }
+                                        @if (buttonClass == "danger")
+                                        {
+                                            <button class="btn btn-sm btn-uniform btn-@buttonClass" onclick="openng('@row2["wristrap"]', '@shift', '@date')">@shift</button>
+                                        }
+                                        @if (buttonClass == "info")
+                                        {
+                                            <button class="btn btn-sm btn-uniform" style="background-color:#8FD14F" onclick="opendetailsok('@row2["wristrap"]', '@shift', '@date')">@shift</button>
+                                        }
+                                        @if (buttonClass == "primary")
+                                        {
+                                            <button class="btn btn-sm btn-uniform btn-warning" onclick="openPrimaryModal('@row2["wristrap"]', '@shift', '@date')" disabled>@shift</button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if (buttonClass == "success")
+                                        {
+                                            <button class="btn btn-sm btn-uniform btn-@buttonClass" onclick="opendetailsok('@row2["wristrap"]', '@shift', '@date')" @buttonDisabled>@shift</button>
+                                        }
+                                        @if (buttonClass == "danger")
+                                        {
+                                            <button class="btn btn-sm btn-uniform btn-@buttonClass" onclick="openng('@row2["wristrap"]', '@shift', '@date')" @buttonDisabled>@shift</button>
+                                        }
+                                        @if (buttonClass == "info")
+                                        {
+                                            <button class="btn btn-sm btn-uniform" style="background-color:#8FD14F" onclick="opendetailsok('@row2["wristrap"]', '@shift', '@date')" @buttonDisabled>@shift</button>
+                                        }
+                                        @if (buttonClass == "primary")
+                                        {
+                                            <button class="btn btn-sm btn-uniform btn-warning" onclick="openPrimaryModal('@row2["wristrap"]', '@shift', '@date')" disabled>@shift</button>
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function showModal(id_wristrap, location, shift, date) {
+        document.getElementById('location').value = location;
+        document.getElementById('id_wristrap').value = id_wristrap;
+        document.getElementById('shiftValue').value = shift;
+        document.getElementById('dateValue').value = date;
+
+        $('#inspectorModal').modal('show');
+    }
+
+    $('#select_location').select2({
+        dropdownParent: $('#inspectorModal'),
+        placeholder: 'Select Location',
+        width: '100%',
+        ajax: {
+            url: "@Url.Action("GetLocation")",
+            data: function (params) {
+                return {
+                    family: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.items
+                };
+            },
+        }
+    });
+
+    $(document).ready(function () {
+        $.ajax({
+            url: "@Url.Action("GetSesaId", "wristrap")",
+            method: "GET",
+            success: function (response) {
+                if (response.success) {
+                    $('#sesaId').val(response.sesaId);
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+    });
+
+    function hide_modal() {
+        $('#inspectorModal').modal('hide');
+        $('body').removeClass('modal-open');
+        $('body').css('padding-right', '');
+        $('.modal-backdrop').remove();
+
+        $('#create_SC').prop('disabled', false);
+        $('#create_NG').prop('disabled', false);
+        $('#remark-section').hide();
+        $('#submit_button').hide();
+    }
+
+    // Show remark input field and submit button when NG button is clicked
+    $('#create_NG').on('click', function () {
+        $('#remark-section').show();
+        $('#submit_button').show();
+        $('#create_SC').prop('disabled', true);
+        $('#create_NG').prop('disabled', false);
+    });
+
+      $('#create_SC').on('click', function () {
+        $('#remark-section').hide();
+        $('#submit_button').hide();
+        $('#create_SC').prop('disabled', false);
+        $('#create_NG').prop('disabled', true);
+
+        var inspector_sesa_id = $('#sesaId').val();
+        var id_wristrap = $('#id_wristrap').val(); 
+        var location = $('#location').val();
+        var shift = $('#shiftValue').val();
+        var date = $('#dateValue').val();
+
+        if (inspector_sesa_id == '' || id_wristrap == '' || location == '' || shift == '' || date == '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Required Fields',
+                text: 'Error: Missing Field (Make sure ID Wristrap is loaded)',
+            });
+        } else {
+            Swal.fire({
+                title: 'Wristrap Check?',
+                text: "Are you sure to Save this Data?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Yes!',
+                cancelButtonText: 'No!',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("SaveWristrapCheck")",
+                        data: {
+                            inspector_sesa_id: inspector_sesa_id,
+                            id_wristrap: id_wristrap,
+                            location: location,
+                            result: 'OK',
+                            shift: shift,
+                            date: date
+                        },
+                        dataType: "json"
+                       }).done(function (data) {
+                        if (data.status === 1) {
+                            Swal.fire({
+                                title: 'Completed!',
+                                text: 'Success to Add New Data',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                allowOutsideClick: false 
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message || 'Error Add New Data',
+                                icon: 'error',
+                                confirmButtonText: 'Try Again'
+                            });
+                        }
+                    }).fail(function (ex) {
+                        Swal.fire('Error!', 'System Error: ' + ex.responseText, 'error');
+                    });
+                }
+            });
+        }
+    });
+
+    // Handle Submit button click
+    $('#submit_button').on('click', function () {
+        var inspector_sesa_id = $('#sesaId').val(); 
+        var id_wristrap = $('#id_wristrap').val();
+        var location = $('#location').val();
+        var remark = $('#remark').val();
+        var shift = $('#shiftValue').val();
+        var date = $('#dateValue').val();
+        if (inspector_sesa_id == '' || location == '' || remark == '' || shift == '' || date == '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Required Fields',
+                text: 'Error Missing Field',
+            });
+        } else {
+            Swal.fire({
+                title: 'Wristrap Check?',
+                text: "Are you sure to Save this Data?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Yes!',
+                cancelButtonText: 'No!',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("SaveWristrapCheck")",
+                        data: {
+                            inspector_sesa_id: inspector_sesa_id, 
+                            id_wristrap: id_wristrap,
+                            location: location,
+                            remark: remark,
+                            result: 'NG',
+                            shift: shift,
+                            date: date
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.status === 1) {
+                                Swal.fire({
+                                    title: 'Completed!',
+                                    text: 'Success to Add New Data',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                    allowOutsideClick: false 
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.reload();
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: data.message || 'Error Add New Data',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                    });
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .not-clickable {
+        pointer-events: none;
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .dropdown-menu {
+        padding: 10px;
+    }
+
+    .dropdown-item {
+        margin-bottom: 10px;
+    }
+
+    .dropdown-toggle {
+        background-color: #337ab7;
+        border-color: #2e6da4;
+        color: #fff;
+    }
+
+    #tbl_history {
+        margin: 0 auto;
+    }
+
+    .btn-circle {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 6px;
+        font-size: 12px;
+        margin: 5px;
+    }
+
+    .btn-uniform {
+        width: 30px;
+        height: 30px;
+        padding: 4px;
+        font-size: 14px;
+        vertical-align: middle; 
+    }
+
+    .btn-uniform:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+
+    .select2-container {
+        width: 100% !important;
+        line-height: 100% !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 40px !important; 
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 30px !important; 
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        font-size: 17px !important;
+    }
+
+    .professional-table thead th {
+        background-color: var(--primary-blue) !important;
+        color: white !important;
+        text-align: center;
+        vertical-align: middle;
+        text-transform: uppercase;
+        font-size: 11px;
+        border-right: 1px solid white !important;
+        border-bottom: 1px solid white !important;
+    }
+
+    .professional-table thead th:first-child {
+        border-left: 1px solid white !important;
+    }
+
+    .professional-table td {
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .professional-table {
+        border-collapse: separate !important;
+        border-spacing: 0;
+    }
+
+    .modal {
+        z-index: 1060 !important;
+    }
+
+    .modal-backdrop {
+        z-index: 1050 !important;
+    }
+</style>

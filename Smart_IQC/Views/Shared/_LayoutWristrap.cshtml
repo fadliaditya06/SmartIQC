@@ -1,0 +1,522 @@
+﻿@using P1F_IQC.Function
+@using Microsoft.AspNetCore.Http;
+@using System.Security.Claims;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    string url = ViewContext.HttpContext.Request.Path;
+    string lastSegment = url.Split('/').Last();
+    string level = User.FindFirst("p1f_iqc_level")?.Value;
+    string name = User.FindFirst("p1f_iqc_name")?.Value;
+    string role = User.FindFirst("p1f_iqc_role")?.Value;
+    string sesa_id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart IQC</title>
+
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
+
+    <!--FontAwesome-->
+    <link href="~/lib/adminlte/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/fontawesome-free/css/fontawesome.min.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/fontawesome-free/css/solid.min.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!--Bootstrap 4-->
+    <link href="~/lib/select2-4.1.0/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/DataTables-1.11.3/css/dataTables.bootstrap4.min.css" />
+
+    <!-- Admin LTE-->
+    <link href="~/lib/adminlte/dist/css/adminlte.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/sweetalert2/sweetalert2.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/chart.js/Chart.min.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" rel="stylesheet" />
+
+    <!-- Custom Font Arial -->
+    <link rel="stylesheet" href="~/css/custom-fonts.css" />
+
+</head>
+<body class="sidebar-mini layout-fixed layout-navbar-fixed sidebar-collapse" style="padding: 0 !important; margin: 0 !important; ">
+    <div class="wrapper">
+        <!-- Navbar-->
+        <nav class="main-header navbar navbar-expand border-bottom navbar-light bg-light fh-fixedHeader">
+            <ul class="navbar-nav justify-content-center">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#">
+                        <i class="fa fa-bars" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <div class="logo-container">
+                    <img src="~/images/logo/se-iqc.png" alt="Logo" class="nav-logo" height="40">
+                    <span class="sub-app">Wriststrap</span>
+                </div>
+            </ul>
+            <div class="ml-auto d-flex align-items-center pr-3">
+                <div class="dropdown custom-user-dropdown">
+                    <div class="d-flex align-items-center profile-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <div class="d-flex flex-column me-2">
+                            <h8 class="text-gray" style="line-height: 1 !important;">@name</h8>
+                            <h8 class="text-gray text-right" style="line-height: 1 !important;"><small>@sesa_id</small></h8>
+                        </div>
+                        <div class="image profile-image-container" style="margin-left: 8px;">
+                            <img src="~/assets/header.png"
+                                 class="img-circle elevation-1"
+                                 alt="User Image"
+                                 style="width:40px; height:40px; object-fit:cover; border: 2px solid #3DCD58;">
+                        </div>
+                    </div>
+
+                    <ul class="dropdown-menu dropdown-menu-end mt-2">
+                        <li class="dropdown-item disabled">
+                            <small>
+                                <strong>Level:</strong>
+                                @if (!string.IsNullOrEmpty(level) && level.Length > 0)
+                                {
+                                    <span>@char.ToUpper(level[0])@level.Substring(1).ToLower()</span>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </small>
+                        </li>
+                        <li class="dropdown-item disabled">
+                            <small>
+                                <strong>Role:</strong>
+                                @if (!string.IsNullOrEmpty(role) && role.Length > 0)
+                                {
+                                    <span>@char.ToUpper(role[0])@role.Substring(1).ToLower()</span>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </small>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a href="@Url.Action("Logout", "Home")" class="dropdown-item d-flex align-items-center">
+                                <i class="nav-icon fas fa-sign-out-alt mr-2"></i> Log Out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- End Navbar-->
+
+        <!-- Sidebar -->
+        <aside class="main-sidebar sidebar-dark-success elevation-5">
+            <!-- Brand Logo -->
+            <a href="#" class="brand-link text-center">
+                @*<img id="sidebar-brand-img"
+                     src="@Url.Content("~/assets/sewhite.svg")"
+                     alt="Schneider Logo"
+                style="opacity: .8; transition: opacity 0.3s ease; max-height: 29px;">*@
+            </a>
+            <div class="sidebar">
+                <nav class="mt-3">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                        @if (level?.ToLower() == "inspector" || level?.ToLower() == "admin")
+                        {
+                            if (ViewContext.RouteData.Values["Controller"]?.ToString() == "Wristrap")
+                            {
+                                <li class="nav-item">
+                                    <a href="@Url.Action("WristrapCheck", "Wristrap")" class="nav-link @Html.IsActive("Wristrap", "WristrapCheck")">
+                                        <i class="nav-icon fas fa-user-shield"></i>
+                                        <p>Wriststrap Check</p>
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="nav-item">
+                                <a href="@Url.Action("WorkInstruction", "Wristrap")" class="nav-link @Html.IsActive("Wristrap", "WorkInstruction")">
+                                    <i class="nav-icon fas fa-file-alt"></i>
+                                    <p>WI Wriststrap</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="@Url.Action("Dash", "Home")" class="nav-link @Html.IsActive("Home", "Dash")">
+                                    <i class="nav-icon fas fa-arrow-left"></i>
+                                    <p>Back to Homepage</p>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+
+        <footer class="main-footer">
+            <strong>Copyright &copy; 2025 <a class="text-success" href="#">PT XYZ</a>.</strong>
+            All rights reserved.
+            <div class="float-right d-none d-sm-inline-block">
+                <b>Version</b> 1.0.0
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/DataTables-1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/DataTables-1.11.3/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/lib/adminlte/plugins/moment/moment.min.js"></script>
+    <script src="~/lib/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/adminlte/dist/js/adminlte.min.js"></script>
+    <script src="~/lib/adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/select2-4.1.0/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="~/lib/adminlte/plugins/sweetalert2/sweetalert2.min.js"></script>
+   
+    <script>
+        $(document).ready(function(){
+            const $body = $('body');
+            const $sidebar = $('.main-sidebar');
+            const $img = $('#sidebar-brand-img');
+
+            // const imgOpen = '@Url.Content("~/assets/sewhite.svg")';
+            // const imgClosed = '@Url.Content("~/assets/icon_se.svg")';
+
+            function updateSidebarLogo() {
+                if ($body.hasClass('sidebar-collapse')) {
+                    $img.attr('src', imgClosed);
+                } else {
+                    $img.attr('src', imgOpen);
+                }
+            }
+
+            updateSidebarLogo();
+
+            $(document).on('click', '[data-widget="pushmenu"]', function () {
+                setTimeout(updateSidebarLogo, 300);
+            });
+
+            $sidebar.on('mouseenter', function () {
+                if ($body.hasClass('sidebar-collapse')) {
+                    $img.attr('src', imgOpen);
+                }
+            });
+
+            $sidebar.on('mouseleave', function () {
+                if ($body.hasClass('sidebar-collapse')) {
+                    $img.attr('src', imgClosed);
+                }
+            });
+
+            setTimeout(function () {
+                $(".active_menu").addClass("active");
+            },500)
+        })
+
+        $('body').on("click", function (e) {
+            $(this).removeClass('sidebar-open');
+        });
+
+        function number_to_k(n, precision = 2) {
+            let n_format = 0;
+            n_format = (n / 1000).toFixed(precision) + 'K';
+            return n_format;
+        }
+
+        function showSessionExpirationModal() {
+            var sesaId = '@sesa_id';
+            var currentPage = '@ViewContext.RouteData.Values["action"]';
+
+            if (!sesaId || sesaId === '' || sesaId === 'null' || sesaId === 'undefined') {
+                window.location.replace('@Url.Action("Logout", "Home")');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Session Expiration Notice',
+                text: 'Your session is about to expire. Do you want to stay logged in or log out?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Stay Logged In',
+                cancelButtonText: 'Log Out',
+                reverseButtons: true,
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("RefreshSession", "Home")',
+                        method: 'POST',
+                        success: function () {
+                            location.reload();
+                        },
+                        error: function () {
+                            console.log('Error refreshing session');
+                            window.location.replace('@Url.Action("Logout", "Home")');
+                        }
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.replace('@Url.Action("Logout", "Home")');
+                }
+            });
+        }
+
+        var sesaId = '@sesa_id';
+        if (sesaId && sesaId !== '' && sesaId !== 'null' && sesaId !== 'undefined') {
+            setTimeout(showSessionExpirationModal, 30 * 60 * 1000);
+
+            // (10 detik)
+            // setTimeout(showSessionExpirationModal, 10 * 1000);
+        }
+
+        $(document).on('click', '#logout-link', function (event) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, logout!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("Logout", "Home")';
+                }
+            });
+        });
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+<style>
+     :root {
+        --primary-blue: #3A738C;
+        --secondary-blue: #4a90b8;
+        --success-green: #3DCD58;
+        --warning-yellow: #ffd100;
+        --danger-red: #B10043;
+        --neutral-gray: #595959;
+        --light-gray: #d9d9d9;
+        --background-gray: #f8f9fa;
+        --text-dark: #2c3e50;
+        --text-light: #6c757d;
+        --success: #3DCD58;
+        --warning: #ffd100;
+        --danger: #B10043;
+    }
+
+    .profile-trigger {
+        cursor: pointer;
+    }
+
+    .main-sidebar,
+    .main-sidebar::before {
+        transition: width 0.3s ease-in-out !important;
+    }
+
+    .sidebar-mini.sidebar-collapse .main-sidebar:hover {
+        width: 250px !important; /* Lebar saat memanjang */
+    }
+
+    .sidebar-mini.sidebar-collapse .nav-sidebar .nav-link p,
+    .sidebar-mini.sidebar-collapse .nav-sidebar .nav-header {
+        transition: opacity 0.2s ease;
+        opacity: 0;
+    }
+
+    .sidebar-mini.sidebar-collapse .main-sidebar:hover .nav-sidebar .nav-link p,
+    .sidebar-mini.sidebar-collapse .main-sidebar:hover .nav-sidebar .nav-header {
+        opacity: 1;
+    }
+
+    .brand-link .brand-image {
+        transition: all 0.3s ease-in-out;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .dot {
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .logo-text {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .p1f {
+        color: black;
+        font-size: 1.6em;
+        font-weight: 850;
+        line-height: 1;
+        letter-spacing: -1px;
+    }
+
+    .iqc {
+        color: white;
+        background-color: #3DCD58;
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 1.6em;
+        font-weight: 700;
+        line-height: 1;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+        background-color: var(--light-gray);
+        border-bottom: 2px solid var(--light-gray);
+        padding: 16px 16px 16px 16px;
+        border-radius: 12px 12px 0 0;
+        border: none;
+    }
+
+    .modal-header .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .modal-header .close {
+        color: var(--text-light);
+        opacity: 0.7;
+    }
+
+    .modal-header .close:hover {
+        opacity: 1;
+    }
+
+    .table thead th {
+        background: var(--primary-blue);
+        color: white;
+        font-weight: 600;
+        text-align: center;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        vertical-align: bottom;
+        border-bottom: 2px solid white !important;
+    }
+
+    .professional-table {
+        font-size: 12px;
+        border-collapse: separate;
+        border-spacing: 0;
+        clip-path: inset(0 round 8px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .professional-table thead th {
+        background: var(--primary-blue);
+        color: white;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .professional-table tbody td {
+        border: 1px solid #f0f0f0;
+        vertical-align: middle;
+    }
+
+    .professional-table tbody tr:hover {
+        background-color: var(--background-gray);
+    }
+
+    .professional-table th,
+    .professional-table td {
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+
+    .professional-table thead tr:first-child th {
+        border-bottom: 2px solid white !important;
+        padding-bottom: 10px !important;
+    }
+
+    .professional-table thead tr:nth-child(2) th {
+        border-top: none !important;
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+    }
+
+    .filter_table, .column-filter {
+        margin-top: 2px;
+        border-radius: 6px !important;
+    }
+
+    .badge-pill {
+        padding: 0.4em 0.8em !important;
+        font-weight: 600 !important;
+    }
+
+    .modal-content {
+        border-radius: 12px !important;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .sub-app {
+        color: black;
+        font-size: 25px;
+        font-weight: 600;
+        margin-top: 2px;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .nav-logo {
+        height: 40px; 
+        width: auto;
+        object-fit: contain;
+        display: block;
+        min-height: 40px;
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 40px;
+    }
+
+    .dropdown-item {
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa !important;
+        color: #dc3545 !important;
+    }
+
+    .dropdown-item#logout-link:hover {
+        background-color: #ffe5e5 !important;
+        color: #bd2130 !important;
+        transition: all 0.2s ease-in-out;
+    }
+</style>

@@ -1,0 +1,1010 @@
+﻿@using P1F_IQC.Function
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    DateTime dt = DateTime.Now;
+    var Month = dt.ToString("MMMM");
+
+    if (HttpContextAccessor.HttpContext.Session == null)
+    {
+        Url.Action("Logout", "Home");
+    }
+}
+
+<style>
+    .container {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 12px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    /* Modal Add dan Edit */
+    #modal_add, #modal_edit {
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #modal_add .modal-header h5, #modal_edit .modal-header h5 {
+        font-weight: 600px;
+        margin: 0;
+    }
+
+    #modal_add .modal-body, #modal_edit .modal-body {
+        padding: 20px;
+    }
+
+    #modal_add .form-group, #modal_edit .form-group {
+        margin-bottom: 20px;
+    }
+
+    #modal_add .form-control, #modal_edit .form-control {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px; /* Perubahan ukuran font */
+    }
+
+    #modal_add .form-control:focus, #modal_edit .form-control:focus {
+        border-color: #3dcd58;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #modal_add .form-control:hover, #modal_edit .form-control:hover {
+        border-color: #aaa; /* Tambahkan warna hover */
+    }
+
+    #modal_add .btn, #modal_edit .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #3dcd58;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease; /* Tambahkan animasi */
+    }
+
+    #modal_add .btn:hover, #modal_edit .btn:hover {
+        background-color: #2ecc71;
+    }
+
+    #modal_add .btn:active, #modal_edit .btn:active {
+        background-color: #27ae60;
+    }
+
+    #modal_add .form-control select, #modal_edit .form-control select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        height: 40px;
+        background-color: #fff;
+        color: #333;
+        font-size: 16px;
+        vertical-align: middle;
+    }
+
+    #modal_add .form-control select:focus, #modal_edit .form-control select:focus {
+        border-color: #3dcd58;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #modal_add .form-control select option, #modal_edit .form-control select option {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    #modal_add .form-control select option:hover, #modal_edit .form-control select option:hover {
+        background-color: #f9f9f9;
+    }
+
+    .select2-container .select2-selection--single .select2-selection__placeholder {
+        font-size: 14px !important;
+        color: #999;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        font-size: 14px !important; 
+    }
+
+    .select2-container--classic .select2-selection--multiple .select2-selection__placeholder {
+        margin-left: 5px !important;
+        color: #6c757d !important; 
+    }
+
+    .select2-container--classic .select2-selection--multiple {
+        padding-left: 8px !important; 
+        border: 1px solid #ccc !important; 
+        border-radius: 5px !important;
+    }
+
+    .select2-container--classic .select2-search--inline .select2-search__field {
+        font-size: 14px !important;
+        margin-left: 5px !important;
+    }
+
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-users text-success"></i>
+                <b>User Management</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="dashboard-card">
+                    <div class="card-body">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <button class="btn btn-primary btn-sm mr-2" onclick="addData()">
+                                    <i class="fa fa-plus"></i> Add User
+                                </button>
+
+                                <button id="btn_reset" class="btn btn-sm btn-warning" onclick="window.location.reload()">
+                                    <i class="fa fa-history mr-1"></i> Refresh Data
+                                </button>
+
+                                @*  <a class="btn btn-success btn-sm" href="@Url.Action("DownloadUserManagement", "Admin")">
+                                <i class="fa fa-download"></i> Download Data
+                                </a>
+                                <button class="btn btn-sm btn-danger btn-sm" id="delete_select"><i class="fas fa-trash"></i> Delete Selected Data</button> *@
+                            </div>
+
+                            <div class="row align-items-end">
+                                <div class="col-lg-10 col-md-9">
+                                    <div class="form-group mb-0">
+                                        <label style="font-size:10pt;font-weight:bold;">Department Filter</label>
+                                        <select class="form-control form-control-sm" id="select_dept" style="width:100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-3">
+                                    <button onclick="applyfilter()" class="btn btn-success btn-sm btn-block">
+                                        <i class="fa fa-search mr-1"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12" id="FilteredTable">
+                                    <div id="spinner_loading" class="text-center mt-2">
+                                        <i class="fas fa-spinner fa-spin fa-lg" style="font-size:30pt;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Add User *@
+<div id="modal_add" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-plus mr-2"></i> Add User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="sesa_id">SESA ID <span style="color: red">*</span></label>
+                            <input type="text" id="sesa_id" name="sesa_id" placeholder="SESA ID" class="form-control form-control-sm" autocomplete="off" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Name <span style="color: red">*</span></label>
+                            <input id="name" class="form-control form-control-sm" placeholder="Name" style="width: 100%;" autocomplete="off" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Email <span style="color: red">*</span></label>
+                            <input type="text" id="email" class="form-control form-control-sm" placeholder="Email" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Password <span style="color: red">*</span></label>
+                            <input type="password" id="password" class="form-control form-control-sm" placeholder="Password" style="width: 100%;" autocomplete="new-password" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-5">
+                        <div class="form-group">
+                            <label>Departement <span style="color: red">*</span></label>
+                            <select class="form-control form-control-sm" id="select_departement" placeholder="Departement" required></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 d-flex align-items-end" style="margin-left: -10px; margin-bottom: 20.5px; margin-right:10px">
+                        <button type="button" class="btn btn-primary btn-sm"
+                                data-toggle="modal" data-target="#add_departement_modal"
+                                style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-plus" style="font-size: 10px;"></i>
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Level <span style="color: red">*</span></label>
+                            <select class="form-control form-control-sm" id="level" required>
+                                <option value="" selected disabled hidden>Select Level</option>
+                                <option value="admin">Admin</option>
+                                <option value="inspector">Inspector</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Access <span style="color: red">*</span></label>
+                            <select class="form-control select2-multiple" id="access" multiple="multiple" style="width: 100%;">
+                                <option value="APP-IQC">Smart IQC</option>
+                                <option value="APP-TH">Temperature Humidity</option>
+                                <option value="APP-WRI">Wriststrap</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Role Confirmation <span style="color: red">*</span></label>
+                            <select class="form-control form-control-sm" id="roles" required>
+                                <option value="" selected disabled hidden>Select Level</option>
+                                <option value="metrology">Metrology</option>
+                                <option value="SQE">SQE</option>
+                                <option value="-">(none)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Submit Button -->
+            <center>
+                <div class="col-6 text-center p-4">
+                    <button class="btn btn-success btn-block" id="AddUser">
+                        <i class="fas fa-paper-plane mr-1"></i> Submit
+                    </button>
+                </div>
+            </center>
+        </div>
+    </div>
+</div>
+
+@* Modal Edit User *@
+<div id="modal_edit" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-edit mr-2"></i> Edit User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="sesa_id">SESA ID <span style="color: red">*</span></label>
+                            <input type="text" id="e_sesa_id" name="e_sesa_id" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Name <span style="color: red">*</span></label>
+                            <input id="e_name" class="form-control form-control-sm" placeholder="Name" style="width: 100%;" autocomplete="off" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Email <span style="color: red">*</span></label>
+                            <input type="text" id="e_email" class="form-control form-control-sm" placeholder="Email" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="e_password" class="form-control form-control-sm" placeholder="Password" style="width: 100%;" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-5">
+                        <div class="form-group">
+                            <label>Departement <span style="color: red">*</span></label>
+                            <select class="form-control form-control-sm" id="e_select_departement" placeholder="Departement" required></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 d-flex align-items-end" style="margin-left: -10px; margin-bottom: 20.5px; margin-right:10px">
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add_departement_modal" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-plus" style="font-size: 10px;"></i></button>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Level <span style="color: red">*</span></label>
+                            <select class="form-control form-control-sm" id="e_level" required>
+                                <option value="" selected disabled hidden>Select Level</option>
+                                <option value="admin">Admin</option>
+                                <option value="inspector">Inspector</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Access<span style="color: red">*</span></label>
+                            <select class="form-control select2-multiple" id="e_access" multiple="multiple" style="width: 100%;">
+                                <option value="APP-IQC">Smart IQC</option>
+                                <option value="APP-TH">Temperature Humidity</option>
+                                <option value="APP-WRI">Wriststrap</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Role Confirmation <span style="color: red">*</span></label>
+                            <select class="form-control form-control-sm" id="e_roles" required>
+                                <option value="" selected disabled hidden>Select Level</option>
+                                <option value="metrology">Metrology</option>
+                                <option value="SQE">SQE</option>
+                                <option value="-">(none)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Submit Button -->
+            <center>
+                <div class="col-6 text-center p-4">
+                    <button class="btn btn-success btn-block" id="EditUser" onclick="verify_save()">
+                        <i class="fas fa-paper-plane mr-1"></i> Submit
+                    </button>
+                </div>
+            </center>
+        </div>
+    </div>
+</div>
+
+<!-- Add Departement Modal -->
+<div id="add_departement_modal" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-building mr-2"></i> Add Department</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="form-group">
+                    <label>Department ID <span style="color: red">*</span></label>
+                    <input type="text" id="new_id_dept" class="form-control form-control-sm" placeholder="Example: FIN, HR, SC" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label>Department Name <span style="color: red">*</span></label>
+                    <input type="text" id="new_departement_name" class="form-control form-control-sm" placeholder="Departement Name" autocomplete="off" required>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-success" id="save_departement" style="width: 150px;">
+                        <i class="fas fa-paper-plane mr-1"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '[data-toggle="dropdown"]', function (e) {
+                e.preventDefault();
+                $(this).dropdown('toggle');
+            });
+            GetUserData()
+
+        });
+
+        $(document).ready(function () {
+            $('#access').select2({
+                allowClear: true,
+                placeholder: "Select an Access Option",
+                width: '100%',
+                theme: 'classic'
+            });
+
+            $('#e_access').select2({
+                allowClear: true,
+                placeholder: "Select an Access Option",
+                width: '100%',
+                theme: 'classic'
+            });
+
+            $('#add_departement_modal').on('show.bs.modal', function () {
+                if ($('#modal_add').is(':visible')) {
+                    $(this).data('parent-modal', '#modal_add');
+                    $('#modal_add').modal('hide');
+                }
+                else if ($('#modal_edit').is(':visible')) {
+                    $(this).data('parent-modal', '#modal_edit');
+                    $('#modal_edit').modal('hide');
+                }
+            });
+        });
+
+        // Fungsi untuk pencarian department di dalam modal add user
+        $('#select_departement').select2({
+            placeholder: 'Select Departement Name',
+            width: '100%', // Set the width to 100%
+            ajax: {
+                url: "@Url.Action("GetDeptName", "Admin")", 
+                data: function (params) {
+                    return {
+                        deptname: params.term 
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.items 
+                    };
+                },
+            }
+        });
+
+        // Fungsi untuk menyimpan department jika menambahkan department baru
+        $("#save_departement").click(function () {
+            var idDept = $('#new_id_dept').val();
+            var deptName = $('#new_departement_name').val();
+
+            if (idDept === '' || deptName === '') {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'All fields are required!' });
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("AddDepartment", "Admin")",
+                data: { id_dept: idDept, dept_name: deptName },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire('Saved!', 'Department added successfully.', 'success').then(() => {
+                            $('#new_id_dept').val('');
+                            $('#new_departement_name').val('');
+
+                            $('#add_departement_modal').modal('hide');
+
+                            var parentModal = $('#add_departement_modal').data('parent-modal');
+                            if (parentModal) {
+                                $(parentModal).modal('show');
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                }
+            });
+        });
+
+        function addData() {
+            $('#modal_add').modal('show');
+
+        }
+
+        // Fungsi untuk field select department di modal edit
+        $('#e_select_departement').select2({
+            placeholder: 'Select Departement Name',
+            width: '100%',
+            dropdownParent: $('#modal_edit'), 
+            ajax: {
+                url: "@Url.Action("GetDeptName", "Admin")",
+                data: function (params) {
+                    return { deptname: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.items };
+                },
+            }
+        });
+
+        // Fitur Check All
+        // function toggle(source) {
+        //     checkboxes = document.getElementsByName('foo');
+        //     for (var i = 0, n = checkboxes.length; i < n; i++) {
+        //         checkboxes[i].checked = source.checked;
+        //     }
+        // }
+
+        // Fungsi untuk mengambil seluruh data user dari database
+        function GetUserData() {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetUserData", "Admin")",
+                data: {},
+
+                success: function (data) {
+                    $("#FilteredTable").html(data);
+
+                    var table = $("#tbl_user");
+                    console.log(table.html()); 
+
+                    if (table.length > 0) {
+                        table.DataTable({
+                            "paging": true,
+                            "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                            "pageLength": 10,
+                        });
+                    } else {
+                        console.log("Table element not found");
+                    }
+                }
+            });
+        }
+
+        // Fungsi untuk memfilter data user berdasarkan department yang dipilih
+        function applyfilter() {
+            var dept = $("#select_dept :selected").text();
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetUserData", "Admin")",
+                data: {
+                    dept: dept,
+                },
+                success: function (data) {
+                    $("#FilteredTable").html(data);
+                    initializeDataTable(); 
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching filtered data:', error);
+                }
+            });
+        }
+
+        // Fungsi inisialisasi DataTable
+        function initializeDataTable() {
+            var table = $("#tbl_user");
+            if (table.length > 0) {
+                table.DataTable({
+                    "paging": true,
+                    "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    "pageLength": 10,
+                    "autoWidth": false,
+                    "destroy": true,
+                    "buttons": [
+                        'copy', 'csv', 'excel', 'pdf', 'print'
+                    ]
+                });
+            } else {
+                console.log("Table element not found");
+            }
+        }
+
+        // Fungsi untuk pencarian department
+        $(document).ready(function () {
+            $('#select_dept').select2({
+                placeholder: 'Select Department Name',
+                ajax: {
+                    url: "@Url.Action("GET_DEPT_USER", "Admin")", 
+                    data: function (params) {
+                        return {
+                            dept: params.term 
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.items 
+                        };
+                    },
+                }
+            });
+        });
+
+        // Fungsi untuk membuka modal tambah data user
+        function addData() {
+            $('#modal_add').modal('show');
+        }
+
+        $("#AddUser").click(function () {
+            var accessArray = $('#access').val(); 
+            var accessString = accessArray ? accessArray.join(';') : "";
+
+            // Gather values from the input fields
+            var sesa_id = $('#sesa_id').val();
+            var name = $('#name').val();
+            var email = $('#email').val();
+            var password = $('#password').val();
+            var department = $('#select_departement').val();
+            var level = $('#level').val();
+            var apps_id = $('#apps_id').val();
+            var roles = $('#roles').val();
+
+            // Client-side validation
+            if (sesa_id === '' || name === '' || email === '' || password === '' ||
+                department === '' || level === '' || accessString === '' || roles === '') {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please fill in all the required fields!'
+                });
+                return; 
+            }
+
+            // Confirmation dialog
+            Swal.fire({
+                title: "Are you sure?",
+                text: 'Add Master Data?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Yes!',
+                cancelButtonText: 'No!',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve, reject) {
+                        // AJAX request to add master data
+                        $.ajax({
+                            type: "POST",
+                            async: true,
+                            url: "@Url.Action("AddUserManagement", "Admin")", // Adjust the action name and controller as necessary
+                            data: {
+                                sesa_id: sesa_id,
+                                name: name,
+                                email: email,
+                                password: password,
+                                department: department,
+                                level: level,
+                                apps_id: accessString,
+                                roles: roles
+                            },
+                            success: function (data) {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: 'Added!',
+                                        text: 'Your Master Data has been added.',
+                                        icon: 'success'
+                                    });
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, 1000);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: data.message || 'An error occurred.'
+                                    });
+                                }
+                            },
+                            error: function () {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'An error occurred during the AJAX request.'
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+        // Fungsi untuk menampilkan modal edit dan mengisi otomatis semua field berdasarkan data user yang dipilih.
+        function btn_edit(id_user, sesa_id, name, password, email, level, access, department, roles) {
+            $('#e_sesa_id').val(sesa_id);
+            $('#e_name').val(name);
+            $('#e_password').val('');
+            $('#e_email').val(email);
+            $('#e_level').val(level);
+            $('#e_roles').val(roles);
+
+            $('#e_select_departement').select2({
+                placeholder: 'Select Departement Name',
+                width: '100%',
+                dropdownParent: $('#modal_edit'),
+                ajax: {
+                    url: "@Url.Action("GetDeptName", "Admin")",
+                    data: function (params) { return { deptname: params.term }; },
+                    processResults: function (data) { return { results: data.items }; }
+                }
+            });
+
+            var $option = $("<option selected></option>").val(department).text(department);
+            $('#e_select_departement').empty().append($option).trigger('change');
+
+            if (access) {
+                var selectedApps = access.split(';');
+                $('#e_access').val(selectedApps).trigger('change');
+            } else {
+                $('#e_access').val(null).trigger('change');
+            }
+
+            $("#modal_edit").modal('show');
+        }
+
+        // Fungsi untuk memvalidasi perubahan data pada modal edit dan mengirimkannya ke server untuk diperbarui.
+        function verify_save() {
+            var accessArray = $('#e_access').val();
+            var accessString = accessArray ? accessArray.join(';') : "";
+            var sesa_id    = $('#e_sesa_id').val();
+            var name       = $('#e_name').val();
+            var email      = $('#e_email').val();
+            var password   = $('#e_password').val();
+            var department = $('#e_select_departement').val(); 
+            var level      = $('#e_level').val();
+            var roles      = $('#e_roles').val();
+
+            console.log({sesa_id, name, email, department, level, roles});
+
+            if (!sesa_id || !name || !email || !department || !level || !roles || !accessString) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'All marked fields are required!'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Confirm Edit?',
+                text: "Save this user data change?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'Yes, Save!',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("UpdateData", "Admin")",
+                        data: {
+                            sesa_id: sesa_id,
+                            name: name,
+                            email: email,
+                            password: password,
+                            department: department,
+                            level: level,
+                            apps_id: accessString,
+                            roles: roles
+                        }
+                    }).done(function (data) {
+                        if (data == 1) {
+                            Swal.fire('Success!', 'Data has been updated.', 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Failed', 'Data not changed or SESA ID not found.', 'error');
+                        }
+                    }).fail(function () {
+                        Swal.fire('Error', 'An error occurred on the server.', 'error');
+                    });
+                }
+            });
+        }
+
+        // Fungsi untuk menghapus data user berdasarkan id user
+        function btn_delete(id) {
+            if (id == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please Fill in All the requirement first !'
+                })
+            }
+            else {
+                Swal.fire({
+                    title: 'Confirm Delete?',
+                    text: "Are you sure to Delete Data? ",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#dc3545',
+                    confirmButtonText: 'Yes!',
+                    cancelButtonText: 'No!',
+                    showLoaderOnConfirm: true,
+                    preConfirm: function () {
+                        return new Promise(function (resolve, reject) {
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("DeleteData", "Admin")",
+                                data: {
+                                    id_user: id
+                                },
+                                dataType: "json",
+                                success: function () {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success',
+                                        text: 'Deleted Successfully !'
+                                    })
+                                    setTimeout(function () {
+                                        window.location.href = '@Url.Action("UserManagement", "Admin")';
+                                    }, 1000); // delay 1 detik sebelum reload halaman
+                                }
+                            });
+
+                        })
+                    }
+
+                })
+
+            }
+        }
+
+        // Fungsi untuk mengumpulkan id dari user yang dicentang di tabel dan menghapusnya
+        // $("#delete_select").click(function () {
+        //     var selectedIDs = new Array();
+        //     $('input:checkbox.select_item').each(function () {
+        //         if ($(this).prop('checked')) {
+        //             selectedIDs.push({ id_user: $(this).val() });
+        //         }
+        //     });
+        //     console.log(selectedIDs) 
+
+        //     if (selectedIDs.length === 0) {
+        //         Swal.fire({
+        //             icon: 'error',
+        //             title: 'Error',
+        //             text: 'Please Fill in All the requirement first !'
+        //         })
+
+        //     } else {
+        //         Swal.fire({
+        //             title: 'Delete ?',
+        //             text: "Are you sure to Delete this Part Master Data ? ",
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonColor: '#28a745',
+        //             cancelButtonColor: '#dc3545',
+        //             confirmButtonText: 'Yes!',
+        //             cancelButtonText: 'No!',
+        //             showLoaderOnConfirm: true,
+        //             preConfirm: function () {
+        //                 $.ajax({
+        //                     type: "POST",
+        //                     url: "@Url.Action("DeleteSelectData", "Admin")",
+        //                     data: JSON.stringify(selectedIDs),
+        //                     dataType: "json",
+        //                     contentType: "application/json",
+        //                     success: function () {
+        //                         Swal.fire({
+        //                             icon: 'success',
+        //                             title: 'Success',
+        //                             text: 'Delete Successfully !'
+        //                         })
+        //                         setTimeout(function () {
+        //                             location.reload();
+        //                         }, 1000);
+        //                     },
+        //                     complete: function () {
+        //                         $('#spinner_loading').hide();
+        //                     }
+        //                 });
+        //             }
+        //         })
+        //     }
+        // });
+
+    </script>
+}

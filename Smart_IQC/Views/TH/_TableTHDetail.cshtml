@@ -1,0 +1,121 @@
+﻿@using System.Globalization;
+@using Microsoft.AspNetCore.Http;
+@using P1F_IQC.Controllers;
+@using P1F_IQC.Function;
+@model List<THCheckModel>
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    string loc = ViewBag.loc;
+    string audit_status = ViewBag.audit_status;
+    string role = User.FindFirst("p1f_iqc_role")?.Value;
+    string level = User.FindFirst("p1f_iqc_level")?.Value;
+}
+
+<style>
+    .dataTables_info, .dataTables_paginate, .dataTables_filter {
+        font-size: 10pt; 
+    }
+</style>
+
+<div class="modal-header">
+    <h5 class="modal-title"><i class="fas fa-list"></i> @loc</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="col-12 mt-2 table-responsive">
+        <table class="table professional-table table-sm table-bordered table-striped table-sm align-middle text-center nowrap" id="table_th_detail" style="font-size:10pt">
+            <thead class="text-light">
+                <tr>
+                    @if (loc == "IQC Room")
+                    {
+                        <th>Trip</th>
+                    }
+                    <th style="width:5%">Temperature</th>
+                    <th>Temperature Min-Max</th>
+                    <th style="width:5%">Humidity</th>
+                    <th>Humidity Min-Max</th>
+                    <th>Inspection Date</th>
+                    <th>Status</th>
+                    @if (audit_status == "NOK")
+                    {
+                        <th>Remark</th>
+                    }
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        @if (loc == "IQC Room")
+                        {
+                            <td>@row.insp_trip</td>
+                        }
+                        <td class="@(row.temperature_status == "OK" ? "bg-success text-light" : row.temperature_status == "NOK" ? "bg-danger text-light" : "")">@row.temperature_value</td>
+                        <td class="">@row.tempminmax</td>
+                        <td class="@(row.humidity_status == "OK" ? "bg-success text-light" : row.humidity_status == "NOK" ? "bg-danger text-light" : "")">@row.humidity_value</td>
+                        <td class="">@row.humminmax</td>
+                        <td>@row.insp_date</td>
+                        <td class="@(row.audit_status == "OK" ? "bg-success text-light" : row.audit_status == "NOK" ? "bg-danger text-light" : "")">@row.audit_status</td>
+                       
+                        @if (audit_status == "NOK")
+                        {
+                            <td>
+                                @if (string.IsNullOrEmpty(row.remark))
+                                {
+                                    if (role?.ToLower() == "metrology")
+                                    @*if (level?.ToLower() == "inspector" || level?.ToLower() == "admin")*@
+                                    {
+                                        <button class="btn btn-sm btn-uniform btn-warning"
+                                                onclick="insert_remark('@row.id', '@loc','@row.insp_date')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">Need to be verify</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-info btn-uniform"
+                                            title="View Remark"
+                                            onclick="show_remark_info('@row.remark')">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if ($.fn.DataTable.isDataTable('#table_th_detail')) {
+            $('#table_th_detail').DataTable().destroy();
+        }
+
+        $('#table_th_detail').DataTable({
+            "responsive": true,
+            "autoWidth": false,
+            "pageLength": 10,
+            "ordering": true, 
+            "order": [[0, "desc"]], 
+            "language": {
+                "search": "Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "paginate": {
+                    "next": "Next",
+                    "previous": "Previous"
+                }
+            }
+        });
+    });
+</script>

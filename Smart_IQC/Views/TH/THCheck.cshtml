@@ -1,0 +1,418 @@
+﻿@using P1F_IQC.Function
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<style>
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+        .hero .position-absolute {
+            width: 100%;
+        }
+
+        .hero .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+        }
+
+        .hero .hero-body {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .hero .hero-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+        .dashboard-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-card .card-body {
+            padding: 24px;
+        }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+
+    /*-- LAYOUT --*/
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .container {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 12px;
+        user-select: none;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .table-borderless td:first-child {
+        width: 350px !important;
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    .table-borderless td:nth-child(2) {
+        width: 20px !important;
+        text-align: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-temperature-high text-success"></i>
+                <b>Temperature & Humidity</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-2">
+                <div class="dashboard-card">
+                    <div class="card-body">
+                        <div class="col-12 pb-2" style="margin-left:-8px">
+                            <div class="col-lg-6 col-md-2 col-sm-6">
+                                <div class="form-group">
+                                    <label for="location" style="font-size:10pt; font-weight:bold;">Location:</label>
+                                    <select id="location" class="form-control" onchange="locationchange(this.value)">
+                                        @if (ViewBag.LocationList != null)
+                                        {
+                                            foreach (var loc in (List<string>)ViewBag.LocationList)
+                                            {
+                                                <option value="@loc">@loc</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 pb-3">
+                            <div class="card pb-3">
+                                <div class="card-header bg-warning text-dark text-center" style="font-weight:bold;">
+                                    Temperature
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-borderless" style="font-weight:bold;">
+                                        <tr>
+                                            <td>MIN</td>
+                                            <td>:</td>
+                                            <td id="tempmin"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>MAX</td>
+                                            <td>:</td>
+                                            <td id="tempmax"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Temperature Value</td>
+                                            <td>:</td>
+                                            <td>
+                                                <input type="number" class="form-control" oninput="validateTH()" id="temperature" placeholder="Enter Temperature">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-info text-light text-center" style="font-weight:bold;">
+                                    Humidity
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-borderless" style="font-weight:bold;">
+                                        <tr>
+                                            <td>MIN</td>
+                                            <td>:</td>
+                                            <td id="hummin"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>MAX</td>
+                                            <td>:</td>
+                                            <td id="hummax"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Humidity Value</td>
+                                            <td>:</td>
+                                            <td>
+                                                <input type="number" class="form-control" oninput="validateTH()" id="humidity" placeholder="Enter Humidity">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="card-footer text-center d-flex flex-column align-items-center" style="font-weight:bold;">
+                                    <div class="d-block mb-3">
+                                        <h3>Result:</h3>
+                                    </div>
+                                    <div class="d-block">
+                                        <button class="btn btn-danger" id="nok" onclick="save_TH('NOK')" disabled style="width:10rem;">
+                                            <i class="fas fa-times"></i>&emsp;NOK
+                                        </button>&emsp;
+                                        <button class="btn btn-success" id="ok" onclick="save_TH('OK')" disabled style="width:10rem;">
+                                            <i class="fas fa-check"></i>&emsp;OK
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/adminlte/plugins/chart.js/Chart.min.js"></script>
+    <script src="~/lib/adminlte/plugins/chart.js/chartjs-plugin-datalabels@1.1.2.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $("#location").select2();
+            var savedLocation = localStorage.getItem('location');
+
+            if (savedLocation && $("#location option[value='" + savedLocation + "']").length > 0) {
+                $("#location").val(savedLocation).trigger('change.select2');
+            } else {
+                var firstValue = $("#location option:first").val();
+                if (firstValue) {
+                    $("#location").val(firstValue).trigger('change.select2');
+                }
+            }
+
+            var currentLocation = $("#location").val();
+            if (currentLocation) {
+                locationchange(currentLocation);
+            }
+        });
+
+        // Fungsi untuk mengubah pilihan location di dropdown
+        function locationchange(x) {
+            var location = x;
+            var today = new Date();
+            var dayOfWeek = today.getDay();
+
+            $.ajax({
+                url: "@Url.Action("CheckData", "TH")",
+                type: "GET",
+                data: { location: location },
+                success: function (response) {
+                    $("#tempmin").text(response.tempMinDB + " °C");
+                    $("#tempmax").text(response.tempMaxDB + " °C");
+                    $("#hummin").text(response.humMinDB + " %");
+                    $("#hummax").text(response.humMaxDB + " %");
+
+                    if (dayOfWeek === 0 || dayOfWeek === 6) {
+                        $("#temperature").attr("placeholder", "Locked on Weekend").prop("disabled", true).val('');
+                        $("#humidity").attr("placeholder", "Locked on Weekend").prop("disabled", true).val('');
+                        $("#ok, #nok").prop("disabled", true);
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Locked',
+                            text: 'There is no schedule on Saturday and Sunday'
+                        });
+                    }
+
+                    else if (response.rowsAffected == 1) {
+                        $("#temperature").attr("placeholder", response.temperatureValue).prop("disabled", true);
+                        $("#humidity").attr("placeholder", response.humidityValue).prop("disabled", true);
+                        $("#ok, #nok").prop("disabled", true);
+                    } else {
+                        $("#temperature").attr("placeholder", "Enter Temperature").prop("disabled", false).val('');
+                        $("#humidity").attr("placeholder", "Enter Humidity").prop("disabled", false).val('');
+                        $("#ok, #nok").prop("disabled", true);
+                    }
+                }
+            });
+        }
+
+        // Fungsi ini untuk memvalidasi temperatur dan humidity (apakah value nya OK atau NOK)
+        function validateTH() {
+            var tempVal = $("#temperature").val();
+            var humVal = $("#humidity").val();
+
+            var tempMin = parseFloat($("#tempmin").text());
+            var tempMax = parseFloat($("#tempmax").text());
+            var humMin = parseFloat($("#hummin").text());
+            var humMax = parseFloat($("#hummax").text());
+
+            $("#ok").prop("disabled", true);
+            $("#nok").prop("disabled", true);
+
+            if (tempVal === "" || humVal === "" || tempVal === null || humVal === null) {
+                return; 
+            }
+
+            var temp = parseFloat(tempVal);
+            var hum = parseFloat(humVal);
+
+            var isTempOut = (temp < tempMin || temp > tempMax);
+            var isHumOut = (hum < humMin || hum > humMax);
+
+            if (isTempOut || isHumOut) {
+                $("#nok").prop("disabled", false);
+                $("#ok").prop("disabled", true);
+            } else {
+                $("#ok").prop("disabled", false);
+                $("#nok").prop("disabled", true);
+            }
+        }
+
+        // Fungsi untuk menyimpan data hasil TH Check (baik OK atau NOK)
+        function save_TH(status) {
+            var location = $("#location").val();
+            var temperature = parseFloat($("#temperature").val());
+            var humidity = parseFloat($("#humidity").val());
+            var temp_min = parseFloat($("#tempmin").text());
+            var temp_max = parseFloat($("#tempmax").text());
+            var hum_min = parseFloat($("#hummin").text());
+            var hum_max = parseFloat($("#hummax").text());
+            var status1 = '';
+            var status2 = '';
+
+            if (temperature < temp_min || temperature > temp_max) {
+                status1 = 'NOK';
+            } else {
+                status1 = 'OK';
+            }
+
+            if (humidity < hum_min || humidity > hum_max) {
+                status2 = 'NOK';
+            } else {
+                status2 = 'OK';
+            }
+
+            $.ajax({
+                url: "@Url.Action("AddTH", "TH")",
+                type: "POST",
+                data: {
+                    temp: temperature,
+                    temp_status: status1,
+                    hum: humidity,
+                    hum_status: status2,
+                    status: status,
+                    location: location
+                },
+                success: function (response) {
+                    Swal.fire({
+                        title: 'Added Success',
+                        text: 'Temperature and humidity data has been logged successfully!',
+                        icon: 'success'
+                    }).then(function () {
+                        localStorage.setItem('location', response.message);
+                        window.location.href = "@Url.Action("THStatus", "TH")";
+                        $("#location").val(response.message);
+                        // Disable input fields and buttons
+                        $("#temperature").prop("disabled", true);
+                        $("#humidity").prop("disabled", true);
+                        $("#ok").prop("disabled", true);
+                        $("#nok").prop("disabled", true);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error,
+                    });
+                }
+            });
+        }
+
+        // Fungsi untuk mengingat pilihan lokasi terakhir (jika ke menu ini, maka akan menampilkan lokasi yg terakhir)
+        document.addEventListener('DOMContentLoaded', function () {
+            var savedLocation = localStorage.getItem('location');
+            if (savedLocation) {
+                document.getElementById('location').value = savedLocation;
+            }
+        });
+
+    </script>
+}

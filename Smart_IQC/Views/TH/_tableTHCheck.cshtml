@@ -1,0 +1,206 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using System.Data;
+@using System.Text.RegularExpressions;
+@using System.Globalization;
+@using P1F_IQC.Function
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    DataTable dtData = ViewBag.DataSet2 is DataSet ds && ds.Tables.Count > 0 ? ds.Tables[0] : null;
+
+    var dataColumns = dtData?.Columns.Cast<DataColumn>()
+          .Where(c => c.ColumnName.ToLower() != "location")
+          .ToList();
+
+    if (dataColumns != null)
+    {
+        dataColumns = dataColumns.OrderBy(c =>
+        {
+            string datePart = Regex.Replace(c.ColumnName, @"^[a-zA-Z]+", "");
+            return DateTime.TryParse(datePart, out DateTime dt) ? dt : DateTime.MinValue;
+        }).ToList();
+    }
+
+    // Variabel dinamis hari ini 
+    DateTime today = DateTime.Today;
+}
+
+@functions {
+
+    // Helper untuk merapikan class warna tombol dan icon
+    string GetButtonClass(string status)
+    {
+        return status switch
+        {
+            "success" => "btn-success",
+            "danger" => "btn-danger",
+            "warning" => "btn-warning",
+            "primary" => "btn-primary",
+            "dark" => "btn-secondary", 
+            _ => "btn-secondary"
+        };
+    }
+
+    string GetIconClass(string status)
+    {
+        return status switch
+        {
+            "success" => "fa fa-check",
+            "warning" => "fa fa-spinner",
+            "danger" => "fas fa-times",
+            "primary" => "fas fa-info-circle",
+            "dark" => "fa fa-clock", 
+            _ => "fa fa-clock"
+        };
+    }
+}
+
+<table id="tbl_history" class="table professional-table table-sm table-bordered table-striped align-middle text-center"
+       style="width: 100%; table-layout: fixed; margin-bottom: 0;">
+    <thead>
+        <tr class="text-center" style="font-size:10pt">
+            <th class="align-middle text-center text-light border-right" style="width:40%; border-right: 1px solid white !important;">
+                Location
+            </th>
+
+            @if (dataColumns != null && dataColumns.Count > 0)
+            {
+                foreach (var column in dataColumns)
+                {
+                    string fullColumnName = column.ColumnName;
+                    string dateOnly = Regex.Replace(fullColumnName, @"^[a-zA-Z]+", "");
+                    string headerText = fullColumnName;
+
+                    if (DateTime.TryParse(dateOnly, out DateTime parsedDate))
+                    {
+                        headerText = parsedDate.ToString("dddd", CultureInfo.InvariantCulture);
+                    }
+
+                    <th class="border-right align-middle text-center p-2"
+                        style="width: 10%; border-right: 1px solid white !important;">
+                        @headerText
+                    </th>
+                }
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @if (dtData != null && dtData.Rows.Count > 0 && dataColumns != null)
+        {
+            foreach (DataRow rowData in dtData.Rows)
+            {
+                <tr style="font-size:10pt">
+                    <td class="bg-secondary text-light text-center align-middle"
+                        style="width: 40%">
+                        @rowData["location"]
+                    </td>
+
+                    @foreach (var column in dataColumns)
+                    {
+                        string dateFull = column.ColumnName;
+                        string locationParam = rowData["location"]?.ToString() ?? "";
+
+                        // Ambil status dari database dan tanggal kolom
+                        object cellValue = rowData[dateFull];
+                        string statusValue = (cellValue == DBNull.Value || cellValue == null || cellValue.ToString() == "null")
+                        ? "warning"
+                        : cellValue.ToString().ToLower();
+
+                        string datePart = Regex.Replace(dateFull, @"^[a-zA-Z]+", "");
+                        DateTime columnDate = DateTime.TryParse(datePart, out DateTime dt) ? dt : DateTime.MinValue;
+
+                        // Lihat detail jika sudah ada data (success/danger/primary)
+                        bool canViewDetail = (statusValue == "success" || statusValue == "danger" || statusValue == "primary");
+
+                        // Bisa input jika status warning dan hari ini
+                        bool canInput = (statusValue == "warning" && columnDate.Date == today);
+
+                        // Data masa lalu yang kosong atau status masa depan
+                        bool isLocked = (statusValue == "warning" && columnDate.Date < today) || (statusValue == "dark");
+
+                        string onClickAction = "";
+                        if (canInput)
+                        {
+                            onClickAction = $"opencell('{locationParam}')";
+                        }
+                        else if (canViewDetail)
+                        {
+                            onClickAction = $"opendetails('{locationParam}', '{dateFull}')";
+                        }
+
+                        <td class="align-middle text-center border-right">
+                            @if (!isLocked && (canInput || canViewDetail))
+                            {
+                                <button class="btn btn-sm btn-uniform @GetButtonClass(statusValue)"
+                                        onclick="@onClickAction">
+                                    <i class="@GetIconClass(statusValue)"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                @* Tombol Disabled untuk Masa Lalu yang Tidak Terisi atau Masa Depan *@
+                                <button class="btn btn-sm btn-uniform @GetButtonClass(statusValue)"
+                                        style="opacity: 0.6; cursor: not-allowed;"
+                                        disabled>
+                                    <i class="@GetIconClass(statusValue)"></i>
+                                </button>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="@(dataColumns?.Count + 1 ?? 6)" class="text-center">
+                    No daily check data found for the selected week.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .btn-uniform {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 6px !important;
+        font-size: 14px !important;
+    }
+
+    .btn-primary {
+        background-color: #F96E2A !important;
+        border-color: #F96E2A !important;
+    }
+
+    .btn-warning {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .professional-table thead th {
+        background-color: var(--primary-blue) !important;
+        color: white !important;
+        text-align: center;
+        vertical-align: middle;
+        text-transform: uppercase;
+        font-size: 11px;
+        border-right: 1px solid white !important;
+        border-bottom: 1px solid white !important;
+    }
+
+    .professional-table thead th:first-child {
+        border-left: 1px solid white !important;
+    }
+
+    .professional-table td {
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .professional-table {
+        border-collapse: separate !important;
+        border-spacing: 0;
+    }
+</style>

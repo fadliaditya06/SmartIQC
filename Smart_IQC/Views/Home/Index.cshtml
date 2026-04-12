@@ -1,0 +1,206 @@
+﻿@model P1F_IQC.Models.LoginModel
+@using Microsoft.AspNetCore.Mvc.Rendering;
+@using Microsoft.AspNetCore.Http
+@using System.Security.Claims;
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart IQC</title>
+
+    <link href="~/Content/adminlte.min.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/fontawesome-free/css/all.css" rel="stylesheet" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/dist/css/adminlte.min.css" rel="stylesheet" />
+    <link href="~/lib/adminlte/plugins/sweetalert2/sweetalert2.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
+
+    <!-- Custom Font Arial -->
+    <link rel="stylesheet" href="~/css/custom-fonts.css" />
+</head>
+
+<body class="bg">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="container mask p-4 p-md-5 shadow-lg">
+            <div class="row align-items-center justify-content-center">
+
+                <div class="col-12 col-lg-6 text-lg-start mb-4 mb-lg-0 custom-alignment">
+                    <div class="text-success mb-3">
+                        <!-- Icon besar di desktop, kecil di mobile -->
+                    </div>
+
+                    <div class="logo-wrapper">
+                        <img src="~/images/logo/se-iqc.png" alt="Logo" class="nav-logo" width="300">
+                    </div>
+
+                    <h8 class="text-muted">Inspection Quality Control</h8>
+                    <div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-dark small">version 1.0</p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <div class="p-3 p-md-4 text-lg-start">
+                        <div class="custom-alignment text-lg-start">
+                            <h4>Welcome,</h4>
+                            <h4>Please Login</h4>
+                        </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <button class="btn btn-success btn-flat rounded flex-fill ms-1 me-1 py-2 mr-1" onclick="loginManual()">
+                                    <i class="fas fa-sign-in-alt"></i> Login with SESA
+                                </button>
+                            </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt-4 pt-3 border-top" style="border-top: 1px solid #3dcd58 !important;">
+                <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-center text-left text-md-start">
+                    <div class="text-success mb-2 mb-md-0">
+                        <ul class="list-unstyled mb-0 small">
+                            <li>&copy;2025 - Digital Transformation</li>
+                            <li>PT XYZ</li>
+                        </ul>
+                    </div>
+                    @*<div>
+                        <img src="~/assets/logo.png" class="img-fluid" style="max-width: 150px;" alt="Schneider Logo">
+                    </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_login_manual" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-sm">
+                <div class="modal-body p-4">
+                    <h5 class="text-center mb-4"><i class="fas fa-sign-in-alt"></i> Login with SESA</h5>
+                    <form id="form_login_manual" method="post" action="@Url.Action("Login", "Home")">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">SESA ID <span style="color: red">*</span></label>
+                            @Html.TextBoxFor(m => m.sesa_id, new { @class = "form-control", placeholder = "Enter SESA ID", required = "required"})
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password <span style="color: red">*</span></label>
+                            @Html.PasswordFor(m => m.password, new { @class = "form-control", placeholder = "Enter Password", required = "required" })
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary flex-fill mr-2" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success flex-fill">Login <i class="fas fa-arrow-right ml-1"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="~/lib/adminlte/plugins/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function loginManual() {
+            $("#modal_login_manual").modal("show");
+        }
+
+        $(document).ready(function () {
+            $("#form_login_manual").on("submit", function (e) {
+                e.preventDefault();
+                const form = $(this);
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            Swal.fire("Failed!", response.message, "error");
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Error!", "Something went wrong.", "error");
+                    }
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .bg {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('@Url.Content("~/images/background/background-iqc.jpg")') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .mask {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            max-width: 1100px;
+            width: 95%; 
+        }
+
+        .border-right-divider {
+            border-right: 1px solid #dee2e6;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .btn-success, .btn-info {
+            transition: transform 0.2s;
+        }
+
+        .btn-success:hover, .btn-info:hover {
+            transform: translateY(-2px);
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .nav-logo {
+            width: 60%; 
+            max-width: 300px; 
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        @@media (max-width: 768px) {
+            .iconse {
+                width: 10%;
+            }
+
+            .logo-wrapper {
+                justify-content: center;
+                min-height: 120px;
+            }
+
+            .custom-alignment {
+                text-align: center !important;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .nav-logo {
+                margin-top: 10pt;
+                aspect-ratio: 3 / 1;
+                width: 90%;
+            }
+        }
+    </style>
+</body>
+</html>

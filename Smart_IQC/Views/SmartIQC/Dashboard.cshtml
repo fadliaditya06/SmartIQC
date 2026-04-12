@@ -1,0 +1,551 @@
+﻿@using P1F_IQC.Models
+@model P1F_IQC.Models.ViewModel
+@{
+    ViewData["Title"] = "IQC Commodity Bar Chart";
+}
+
+<style>
+    .highcharts-container, .highcharts-root {
+        -webkit-user-select: auto !important;
+        -moz-user-select: auto !important;
+        -ms-user-select: text !important;
+        user-select: auto !important;
+    }
+
+    .highcharts-text, .highcharts-label {
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        user-select: text !important;
+        cursor: text !important;
+    }
+
+    /* Update Spinner Style agar support Ikon Font Awesome */
+    .loading-container {
+        text-align: center;
+        padding-top: 100px;
+        color: #343a40;
+        position: relative;
+        min-height: 300px;
+    }
+
+    .loading-dots {
+        font-size: 30pt; 
+        color: #343a40;
+        display: block;
+        margin-bottom: 15px;
+    }
+
+    #iqc-bar-container {
+        position: relative;
+        min-height: 500px;
+    }
+
+    .period-range-inputs {
+        margin-top: 15px;
+        text-align: center;
+        display: none;
+    }
+
+    .period-range-inputs label {
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .period-range-inputs .form-control-custom {
+        width: 150px;
+        display: inline-block;
+        margin: 0 10px;
+        height: calc(1.5em + .75rem + 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .period-range-inputs select {
+        appearance: menulist;
+        text-align-last: center;
+        width: 120px !important;
+    }
+
+    .period-range-inputs input[type="month"],
+    .period-range-inputs input[type="week"] {
+        width: 170px;
+    }
+
+    .period-range-inputs, .filter-apply-btn, .btn-refresh-chart {
+        height: calc(1.5em + .75rem + 2px);
+        padding: .375rem 1rem;
+        line-height: 1.5;
+        font-size: 1rem;
+        vertical-align: top;
+    }
+
+    #custom-legend {
+        margin-top: 20px;
+        padding: 10px;
+        border-top: 1px solid #eee;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .legend-item {
+        margin: 5px 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    #iqc-bar-container {
+        min-width: 310px;
+        height: 500px; 
+        margin: 0 auto;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+    .highcharts-container {
+        overflow: visible !important;
+    }
+
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important; 
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important; 
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10; 
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important; 
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%; 
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5
+    {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+    }
+    
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-chart-bar text-success"></i>
+                <b>Dashboard</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid py-4 px-md-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="dashboard-card shadow-sm">
+                <div class="card-body">
+                    <div class="chart-filters mb-4 text-center">
+                        <label class="mr-2 font-weight-bold">Filter Period:</label>
+                        <button class="btn btn-success btn-sm period-filter-btn" data-period="weekly">Weekly</button>
+                        <button class="btn btn-outline-success btn-sm period-filter-btn" data-period="monthly">Monthly</button>
+                        <button class="btn btn-outline-success btn-sm period-filter-btn" data-period="yearly">Yearly</button>
+
+                        <div id="monthly-inputs" class="period-range-inputs">
+                            <label>Month From:</label>
+                            <input type="month" class="form-control-custom" id="month-from">
+                            <label>Month To:</label>
+                            <input type="month" class="form-control-custom" id="month-to" value="@DateTime.Now.ToString("yyyy-MM")">
+                            <button class="btn btn-sm btn-warning ml-2 btn-refresh-chart" title="Refresh Chart" onclick="window.location.reload()">
+                                <i class="fas fa-history"></i>
+                            </button>
+                        </div>
+
+                        @{
+                            int currentYear = DateTime.Now.Year;
+                            int startYear = 2020;
+                            int endYear = 2040;
+                        }
+                        <div id="yearly-inputs" class="period-range-inputs">
+                            <label>Year From:</label>
+                            <select class="form-control-custom" id="year-from">
+                                @for (int year = currentYear; year >= startYear; year--)
+                                {
+                                    <option value="@year" selected="@(year == currentYear)">@year</option>
+                                }
+                            </select>
+                            <label>Year To:</label>
+                            <select class="form-control-custom" id="year-to">
+                                @for (int year = endYear; year >= startYear; year--)
+                                {
+                                    <option value="@year" selected="@(year == currentYear)">@year</option>
+                                }
+                            </select>
+                            <button class="btn btn-sm btn-warning ml-2 btn-refresh-chart" title="Refresh Chart" onclick="window.location.reload()">
+                                <i class="fas fa-history"></i>
+                            </button>
+                        </div>
+
+                        <div id="weekly-inputs" class="period-range-inputs">
+                            <label>Week From:</label>
+                            <input type="week" class="form-control-custom" id="week-from">
+
+                            <label>Week To:</label>
+                            <input type="week" class="form-control-custom" id="week-to">
+
+                            <button class="btn btn-sm btn-warning ml-2 btn-refresh-chart" title="Refresh Chart" onclick="window.location.reload()">
+                                <i class="fas fa-history"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="iqc-bar-container" style="min-width: 310px; height: 500px; margin: 0 auto">
+                        <p style="text-align: center;">Loading chart data...</p>
+                    </div>
+                    <div id="custom-legend"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/highchart/highcharts.js"></script>
+    <script src="~/lib/highchart/modules/exporting.js"></script>
+    <script src="~/lib/highchart/modules/export-data.js"></script>
+    <script src="~/lib/highchart/modules/accessibility.js"></script>
+
+    <script type="text/javascript">
+        const apiUrl = '@Url.Action("GetIqcStatusByCommodity", "SmartIQC")';
+        let currentPeriod = 'weekly';
+
+        // Fungsi untuk membuat tulisan menjadi huruf besar di depan (Weekly)
+        function toTitleCase(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
+
+        // Fungsi untuk loading spinner
+        const spinnerHtml = (period) => `
+            <div class="loading-container">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <i class="fas fa-spinner fa-spin loading-dots"></i>
+                    <p style="font-weight: bold; font-size: 1.1rem;">Loading data for the ${period.toLowerCase()} period...</p>
+                </div>
+            </div>
+        `;
+
+        // Fungsi untuk mengatur form input periode tanggal
+        function togglePeriodInputs(period) {
+            $('.period-range-inputs').slideUp(200);
+            if (period === 'monthly') {
+                $('#monthly-inputs').slideDown(200);
+            } else if (period === 'yearly') {
+                $('#yearly-inputs').slideDown(200);
+            } else if (period === 'weekly') {
+                $('#weekly-inputs').slideDown(200);
+            }
+        }
+
+        // Fungsi untuk membuat legend chart custom
+        function updateCustomLegend(chart) {
+            const categories = chart.xAxis[0].categories;
+            const colors = Highcharts.getOptions().colors;
+            const legendContainer = $('#custom-legend');
+            legendContainer.empty();
+
+            if (categories.length > 0) {
+                let legendHtml = '';
+                categories.forEach((name, index) => {
+                    const color = colors[index % colors.length];
+                    legendHtml += `
+                        <div class="legend-item">
+                            <span class="legend-color" style="background-color: ${color};"></span>
+                            <span>${name}</span>
+                        </div>
+                    `;
+                });
+                legendContainer.html(legendHtml);
+            }
+        }
+
+        // Fungsi untuk berkomunikasi dengan server 
+        function loadIqcChartData(period, dateFrom = null, dateTo = null) {
+            $('#iqc-bar-container').html(spinnerHtml(period));
+            $('#custom-legend').empty();
+
+            const dataToSend = { period: period };
+
+            if (dateFrom && dateTo) {
+                dataToSend.dateFrom = dateFrom;
+                dataToSend.dateTo = dateTo;
+            }
+
+            $.ajax({
+                url: apiUrl,
+                type: 'GET',
+                data: dataToSend,
+                success: function(response) {
+                    const hasValidResponse = response && response.categories && Array.isArray(response.categories);
+
+                    if (hasValidResponse) {
+                        renderBarChart(response.categories, response.seriesData, period);
+                    } else {
+                        renderBarChart([], [], period);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#iqc-bar-container').html('<p style="text-align: center; color: red; padding-top: 50px;">Failed to load chart data. Please ensure the API Controller is correct.</p>');
+                    console.error("AJAX Error:", status, error, xhr.responseText);
+                }
+            });
+        }
+
+        // Fungsi untuk menginisialisasi dan menggambar grafik HighChart
+        function renderBarChart(categories, seriesData, period) {
+            const hasData = categories && categories.length > 0;
+
+            if (!hasData) {
+                seriesData = [{ name: 'Total Records', data: [] }];
+            }
+
+            const maxCategoriesVisible = 10;
+
+            const chart = Highcharts.chart('iqc-bar-container', {
+                chart: {
+                    type: 'bar',
+                    height: 500,
+                    events: {
+                        load: function() {
+                            if (hasData) {
+                                updateCustomLegend(this);
+                            } else {
+                                $('#custom-legend').empty();
+                            }
+                        }
+                    }
+                },
+                title: {
+                text: 'IQC <span style="color:#28a745;">' + toTitleCase(period) + '</span> Trend Per Category',
+                style: {
+                    fontWeight: 'bold'
+                },
+                useHTML: true 
+            },
+                subtitle: {
+                    text: hasData
+                        ? 'Data displays the total number of records per category in the selected period.'
+                        : 'No audit records found for the selected period. Chart displayed empty.'
+                },
+                xAxis: {
+                    categories: categories,
+                    title: {
+                        text: 'Category Name'
+                    },
+                    max: categories.length > maxCategoriesVisible ? maxCategoriesVisible - 1 : undefined,
+                    scrollbar: {
+                        enabled: categories.length > maxCategoriesVisible 
+                    },
+                    gridLineWidth: 1,
+                    lineWidth: 0
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Total Record Count',
+                        align: 'high'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    },
+                    gridLineWidth: 0
+                },
+                tooltip: {
+                    valueSuffix: ' Records'
+                },
+                plotOptions: {
+                    series: {
+                        colorByPoint: true
+                    },
+                    bar: {
+                        borderRadius: '50%',
+                        dataLabels: {
+                            enabled: hasData
+                        },
+                        groupPadding: 0.1
+                    }
+                },
+                legend: {
+                    enabled: false,
+                },
+                credits: {
+                    enabled: false
+                },
+                series: seriesData,
+                exporting: {
+                    enabled: true
+                }
+            });
+            return chart;
+        }
+
+        $(document).ready(function() {
+            // Setup Default Range
+            function getIsoWeekWithOffset(offsetWeeks = 0) {
+                var now = new Date();
+                now.setDate(now.getDate() - (offsetWeeks * 7));
+                now.setDate(now.getDate() + 4 - (now.getDay() || 7));
+                var yearStart = new Date(now.getFullYear(), 0, 1);
+                var weekNo = Math.ceil((((now - yearStart) / 86400000) + 1) / 7);
+                return now.getFullYear() + "-W" + (weekNo < 10 ? "0" + weekNo : weekNo);
+            }
+
+            var weekToDefault = getIsoWeekWithOffset(0);
+            var weekFromDefault = getIsoWeekWithOffset(3);
+
+            if (!$('#week-from').val()) $('#week-from').val(weekFromDefault);
+            if (!$('#week-to').val()) $('#week-to').val(weekToDefault);
+
+            // Inisialisasi Tampilan Awal
+            togglePeriodInputs('weekly');
+            loadIqcChartData('weekly', $('#week-from').val(), $('#week-to').val());
+
+            // Fungsi Reusable untuk Refresh Data
+            function autoRefreshChart(period) {
+                let dateFrom, dateTo;
+                if (period === 'monthly') {
+                    dateFrom = $('#month-from').val();
+                    dateTo = $('#month-to').val();
+                } else if (period === 'yearly') {
+                    dateFrom = $('#year-from').val();
+                    dateTo = $('#year-to').val();
+                } else {
+                    dateFrom = $('#week-from').val();
+                    dateTo = $('#week-to').val();
+                }
+
+                if (dateFrom && dateTo) {
+                    loadIqcChartData(period, dateFrom, dateTo);
+                }
+            }
+
+            // Logika Default Month
+            var now = new Date();
+            var monthTo = now.toISOString().slice(0, 7); 
+
+            var dateFrom = new Date();
+            dateFrom.setMonth(now.getMonth() - 2);
+            var monthFrom = dateFrom.toISOString().slice(0, 7);
+
+            if (!$('#month-from').val()) $('#month-from').val(monthFrom);
+            if (!$('#month-to').val()) $('#month-to').val(monthTo);
+
+            // Tombol Periode (Weekly/Monthly/Yearly)
+            $('.period-filter-btn').on('click', function() {
+                const period = $(this).data('period');
+                currentPeriod = period;
+
+                $('.period-filter-btn').removeClass('btn-success').addClass('btn-outline-success');
+                $(this).removeClass('btn-outline-success').addClass('btn-success');
+
+                togglePeriodInputs(period);
+
+                autoRefreshChart(period);
+            });
+
+            $('#week-from, #week-to, #month-from, #month-to, #year-from, #year-to').on('change', function() {
+                autoRefreshChart(currentPeriod);
+            });
+        });
+    </script>
+}

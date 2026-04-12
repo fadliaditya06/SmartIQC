@@ -1,0 +1,1049 @@
+﻿@using P1F_IQC.Models
+@using Microsoft.AspNetCore.Http
+
+@model ViewModel
+
+<style>
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+
+    .modal-dialog {
+        max-width: 90% !important;
+        padding: 0;
+        margin: 1.75rem auto;
+    }
+
+    .modal {
+        padding: 0 !important;
+        overflow-y: auto !important;
+    }
+
+    /* Glow */
+    .effect:hover, .effect:focus, .effect:active {
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* DataTable Filter Row Styling */
+    .filter-row {
+        background-color: #f4f4f4;
+    }
+
+    .filter-row th {
+        padding: 5px !important;
+    }
+
+    .filter-row .column-filter {
+        width: 100%;
+        min-width: 90px;
+        font-size: 8pt;
+        border: 1px solid #d2d6de;
+    }
+
+    /* Ensure filter inputs are visible and styled consistently */
+    #table_details thead tr.filter-row th input {
+        display: block;
+        width: 100%;
+        height: calc(1.5em + .5rem + 2px);
+        padding: .25rem .5rem;
+        font-size: 8pt;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .modal-content {
+        overflow: hidden;
+        border-radius: 12px !important;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        max-height: none;
+    }
+
+    body.modal-open {
+        overflow: hidden !important;
+        padding-right: 0px !important;
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-exclamation-circle text-success"></i>
+                <b>Open Points</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="dashboard-card card-light">
+                    <div class="card-body">
+                        <div id="spinner_loading" style="display: none;">
+                            <div class="d-flex justify-content-center align-items-center text-center">
+                                <strong>Loading...</strong></br>
+                                <div class="spinner-border spinner-border-sm ml-3" role="status" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                        <div id="spinner_filter" style="display: none;">
+                            <div class="d-flex justify-content-center align-items-center text-center">
+                                <strong>Loading Filter...</strong></br>
+                                <div class="spinner-border spinner-border-sm ml-3" role="status" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3 table-responsive" id="tblDetails" style="overflow-x: auto; white-space: nowrap; scrollbar-width: thin; scroll-behavior: smooth;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Verify *@
+<div id="modal_verify" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-info-circle mr-2"></i> Verify Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="title text-center"><h3 id="show_tester_name"><i class="fa fa-info-circle mr-2"></i> Verify</h3></div>
+                @*<input hidden class="form form-control" id="checking_id" />*@
+                <input hidden class="form form-control" id="id1_Verify" />
+                <input hidden class="form form-control" id="id2_Verify" />
+                <input hidden class="form form-control" id="id3_Verify" />
+                <input hidden class="form form-control" id="shift_name_Verify" />
+
+                <div class="row">
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;">Report ID </label>
+                        <input type="text" id="checking_id_Verify" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;">Category </label>
+                        <input type="text" id="category_Verify" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;">Part Number </label>
+                        <input type="text" id="part_number_Verify" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;"> Due date</label>
+                        <div class="input-group" data-target-input="nearest">
+                            <input type="text" id="due_date_Verify" class="form-control form-control-sm" data-target="#due_date" placeholder="Select Due Date" readonly />
+                            <div class="input-group-append" data-target="#due_date">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <label style="font-size:10pt; font-weight:bold;">PIC Action Picture</label>
+                        <br />
+                        <img id="action_image_preview"
+                             height="200"
+                             width="200"
+                             style="cursor: pointer; padding: 5px;"
+                             src="@Url.Content("~/images/not_available.png")"
+                             title="Click to zoom"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/images/not_available.png")';" />
+                        <p class="text-muted" style="font-size: 10pt;">Click image to full view</p>
+                    </div>
+                </div>
+                <div class="row mt-5" style="margin-top:10px" id="action_btn">
+                    <div class="col-6 mx-auto">
+                        <div class="form-group">
+                            <button class="btn btn-info btn-block" id="btn_verify" onclick="verify()"><i class="fas fa-check"></i> Verify</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Update Action *@
+<div id="modal_update" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-info-circle mr-2"></i> Data Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="title text-center"><h3 id="show_tester_name"><i class="fa fa-info-circle mr-2"></i> Update</h3></div>
+                @*<input hidden class="form form-control" id="checking_id" />*@
+                <input type="hidden" id="update_part_number_hidden" />
+                <input hidden class="form form-control" id="id1" />
+                <input hidden class="form form-control" id="id2" />
+                <input hidden class="form form-control" id="id3" />
+                <input hidden class="form form-control" id="shift_name" />
+                <div class="row">
+                    <div class="col-6">
+                        @* <label style="font-size:10pt;">Requirement</label> *@
+                        <label style="font-size:10pt;">Defect Description</label>
+                        <textarea id="requirement" class="form-control form-control-sm" rows="2" disabled></textarea>
+                    </div>
+                    <div class="col-6">
+                        <label style="font-size:10pt;">Comment</label>
+                        <textarea id="initial_comment" class="form-control form-control-sm" rows="2" disabled></textarea>
+                    </div>
+                    <div class="col-4 mt-2">
+                        <label style="font-size:10pt;">PIC</label>
+                        <input type="text" id="initial_pic_name" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-4 mt-2">
+                        <label style="font-size:10pt;">Critical</label>
+                        <input type="text" id="criticality" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-4 mt-2">
+                        <label style="font-size:10pt;">Department</label>
+                        <input type="text" id="initial_dept_name" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-12 text-center mt-3">
+                        <label style="font-size:10pt;">Defect Picture</label><br />
+                        <img class="initial_nok_pic"
+                             height="100"
+                             width="100"
+                             style="cursor: pointer"
+                             src="@Url.Content("~/images/not_available.png")"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/images/not_available.png")';" />
+                        <p class="text-muted" style="font-size: 10pt;">Click image to full view</p>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;">Category </label>
+                        <input type="text" id="category" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;">Part Number </label>
+                        <input type="text" id="part_number" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;">Supplier </label>
+                        <input type="text" id="supplier" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-3 mx-auto">
+                        <label style="font-size:10pt;"> Due date <sup class="text-red text-bold">(*)</sup></label>
+                        <div class="input-group date" id="container_due_date_update" data-target-input="nearest">
+                            <input type="text" id="due_date" class="form-control form-control-sm datetimepicker-input"
+                                   data-target="#container_due_date_update" placeholder="Select Due Date" />
+                            <div class="input-group-append" data-target="#container_due_date_update" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-8 mt-3">
+                        <label style="font-size:10pt;">Action <sup class="text-red text-bold">(*)</sup></label>
+                        <textarea class="form-control form-control-sm" type="text" id="pic_action" rows="2" style="height:70px;"></textarea>
+                    </div>
+                    <div class="col-4">
+                        <div class="row justify-content-md-center mt-3">
+                            <div class="col-4 text-center">
+                                <label>Upload Picture <sup class="text-red text-bold">(*)</sup></label>
+                                <br />
+                                <img id="pic_af1" src="~/assets/CameraNG.png" alt="Picture Before" style="max-width:80%;height:auto" />
+                                <input onchange="readimgaf1(this);" type="file" id="image_af_upload1" name="image_af_upload1" accept="image/png, image/jpeg" hidden />
+                                <br />
+                                <button name="btn_af_upload1" class="btn btn-success btn-sm mt-2 mb-3"><i class="fa fa-upload"></i> Upload</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-5" style="margin-top:10px" id="action_btn">
+                    <div class="col-6 mx-auto">
+                        <div class="form-group">
+                            <button class="btn btn-success btn-block btn-sm" onclick="update()"><i class="fas fa-check"></i> Update</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Detail Gambar *@
+<div id="show_image" class="modal fade" tabindex="-1" aria-labelledby="filelabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white">
+                <h5 class="modal-title"><i class="fa fa-info-circle"></i> <span id="modal_image_title">Defect Picture</span></h5>
+                <button type="button" id="information_modal_close" onclick="information_modal_close()" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mt-3 text-center">
+                    <div class="col-12">
+                        <img id="show_img_single"
+                             style="max-width: 100%; height: auto;"
+                             onerror="this.onerror=null; this.src='@Url.Content("~/images/not_available.png")';">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Change PIC *@
+<div id="modal_pic_change" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-info-circle mr-2"></i> Change PIC</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="hidden_part_number_for_pic_change" />
+                <div class="row align-items-end mb-3">
+                    <div class="col-md-6">
+                        <label for="oldPIC" style="font-size:10pt;">Current PIC</label>
+                        <input type="text" id="oldPIC" class="form-control form-control-sm" disabled />
+                        <input type="text" hidden id="checking_id" class="form-control form-control-sm" disabled />
+                        <input type="text" hidden id="id1" class="form-control form-control-sm" disabled />
+                        <input type="text" hidden id="id2" class="form-control form-control-sm" disabled />
+                        <input type="text" hidden id="shift_name" class="form-control form-control-sm" disabled />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="newPIC" style="font-size:10pt;">New PIC</label>
+                        <select class="form-control form-control-sm" id="newPIC" name="newPIC">
+                            <option value="">Select PIC</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mx-auto">
+                        <button class="btn btn-info btn-block" id="btn_change" onclick="changePIC()">
+                            <i class="fas fa-check"></i> Change PIC
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Trigger klik pada input file hidden saat tombol upload diklik
+        $("button[name=btn_af_upload1]").click(function () {
+            $("#image_af_upload1").click();
+        });
+
+        // Trigger klik pada pratinjau gambar untuk mengganti file gambar
+        $("#pic_af1").click(function () {
+            $("#image_af_upload1").click();
+        });
+
+        // Fungsi untuk membaca file gambar dari input dan menampilkannya sebagai preview (termasuk validasi ukuran img)
+        function readimgaf1(input) {
+            if (input.files && input.files[0]) {
+                var reader1 = new FileReader();
+                if (input.files[0].size > 10000000) {
+                    Swal.fire({
+                        title: 'Error...',
+                        type: 'error',
+                        text: 'Image size too large! Maximum size is 10000000 bytes',
+                        footer: 'Your image size is ' + input.files[0].size + ' bytes',
+                    });
+                    return document.getElementById("pic_af1").value = "";
+                }
+                reader1.onload = function (e) {
+                    $('#pic_af1').attr('src', e.target.result);
+                };
+                reader1.readAsDataURL(input.files[0]);
+                return;
+            }
+            document.getElementById("pic_af1").value = "";
+        }
+
+        // Fungsi untuk melihat detail gambar 
+        function zoomImage(imagePath, title) {
+            var noImagePath = '@Url.Content("~/images/not_available.png")';
+            $("#modal_image_title").text(title || "Defect Picture");
+
+            $("#show_img_single").attr("src", "");
+            $("#show_image").modal("show");
+            $("#show_img_single").attr("src", imagePath);
+            $("#show_img_single").attr("onerror", "this.onerror=null; this.src='" + noImagePath + "';");
+
+            $("#show_image .close").off('click').on('click', function() {
+                information_modal_close();
+            });
+        }
+
+        // Fungsi untuk menutup modal detail gambar
+        function information_modal_close() {
+            $("#show_image").modal("hide");
+        }
+
+        // Deklarasi variabel global
+        var tblDetails;
+        var date_from = "";
+        var date_to = "";
+
+        $(document).ready(function () {
+            // Inisialisasi selector tabel
+            tblDetails = $("#tblDetails");
+
+            // Logika Pengaturan Tanggal (Default: Awal bulan s/d Hari ini)
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+
+            var current_day = yyyy + '-' + mm + '-' + dd;
+            var first_day_month = yyyy + '-' + mm + '-01';
+
+            // Ambil nilai dari input jika sudah ada, jika kosong gunakan default
+            date_from = $('#date_from').val() || first_day_month;
+            date_to = $('#date_to').val() || current_day;
+
+            // Set nilai ke elemen input di layar
+            $('#date_from').val(date_from);
+            $('#date_to').val(date_to);
+
+            // Event Modal (Reset URL saat modal ditutup)
+            $("#modal_update").on('hidden.bs.modal', function () {
+                updateURLWithReportId(null, null);
+            });
+
+            // Logika Load Tabel - Menjalankan restore filter jika ada di localstorage, jika tidak load tabel biasa
+            if (localStorage.getItem('openPointsFilterState0')) {
+                if (typeof restoreFilterStates === "function") {
+                    restoreFilterStates();
+                } else {
+                    table_apply();
+                }
+            } else {
+                table_apply();
+            }
+
+            $('#container_due_date_update').datetimepicker({
+                format: 'YYYY-MM-DD',
+                useCurrent: false,
+                allowInputToggle: true 
+            });
+
+            $('#modal_update').on('hidden.bs.modal', function () {
+                $('#due_date').val('');
+                $('#container_due_date_update').datetimepicker('clear');
+            });
+        });
+
+        // Fungsi untuk mengambil data dari server via AJAX dan menginisialisasi DataTable
+        function table_apply() {
+            spinner_loading = $("#spinner_loading");
+            spinner_loading.css("display", "block");
+            var date_from = $('#date_from').val()
+            var date_to = $('#date_to').val()
+            var select_cell_name = $('#select_cell_name').val()
+            var select_family = $('#select_family').val()
+
+            // Table Details
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("ShowOpenPoints0")",
+                data: {
+                    date_from: date_from,
+                    date_to: date_to,
+                    cell_name: select_cell_name,
+                    family: select_family
+                },
+                success: function (data) {
+                    tblDetails.html(data);
+
+                    // Initialize DataTable with custom filtering
+                    var table = $("#table_details").DataTable({
+                        "paging": true,
+                        "ordering": true,
+                        "order": [],
+                        "info": true,
+                        "scrollX": false,
+                        "searching": true,
+                        "lengthChange": true,
+                        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                        "pageLength": 25,
+                        "fixedHeader": true,
+                        "columnDefs": [
+                        {
+                            "targets": 0,
+                            "type": "report-id-numeric"
+                        }
+                    ],
+                        "initComplete": function (settings, json) {
+                            // Fungsi ini menambahkan input teks filter di bawah setiap header kolom dan menangani logika pencarian kolom secara real-time
+                            $("#table_details").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");  // Wrap table for horizontal scrolling
+                            // Add filter row below header
+                            var filterRow = $('<tr class="filter-row"></tr>');
+                            var headers = $(this.api().table().header()).find('th');
+
+                            headers.each(function (index) {
+                                var th = $(this);
+                                var filterCell = $('<th></th>');
+
+                                // Skip filter for the last column (Action)
+                                if (index < headers.length - 1) {
+                                    var input = $('<input>', {
+                                        type: 'text',
+                                        class: 'form-control form-control-sm column-filter text-center',
+                                        placeholder: 'Filter ' + th.text(),
+                                        style: 'min-width: 90px;'
+                                    });
+
+                                    filterCell.append(input);
+                                } else {
+                                    filterCell.text(''); // Empty cell for Action column
+                                }
+
+                                filterRow.append(filterCell);
+                            });
+
+                            // Insert filter row
+                            $(this.api().table().header()).append(filterRow);
+
+                            // Apply column filtering
+                            this.api().columns().every(function (index) {
+                                var column = this;
+
+                                // Skip filtering for Action column
+                                if (index < headers.length - 1) {
+                                    $('tr.filter-row th:eq(' + index + ') input').on('keyup change clear', function () {
+                                        if (column.search() !== this.value) {
+                                            column
+                                                .search(this.value)
+                                                .draw();
+                                        }
+                                    });
+                                }
+                            });
+
+                            spinner_loading.css("display", "none");
+                        }
+                    });
+                },
+                complete: function () {
+                    spinner_filter = $("#spinner_filter");  // Check if we have saved filters to restore
+
+                    // Logika untuk mengembalikan state filter dari LocalStorage jika ada
+                    if (localStorage.getItem('openPointsFilterState0')) {
+                        spinner_filter.css("display", "block");
+                        const filterStateAgain = JSON.parse(localStorage.getItem('openPointsFilterState0'));
+                        $('#table_details thead tr.filter-row th input').each(function (index) {
+                            if (index < filterStateAgain.columnFilters.length && filterStateAgain.columnFilters[index]) {
+                                $(this).val(filterStateAgain.columnFilters[index]);
+                                $(this).trigger('keyup');
+                            }
+                        });
+                    }
+                    spinner_filter.css("display", "none");
+                    // Membuka modal otomatis berdasarkan parameter URL
+                    autoOpenModalFromURL();
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+
+        // Fungsi untuk mengisi data ke dalam modal Update Action dan menampilkannya
+        function btn_update(reportID, category, supplier, partNumber, criticality, requirement, picName, deptName, initialComment, fileImage) {
+
+            $('#update_part_number_hidden').val(reportID);
+            $('#category').val(category);
+            $('#supplier').val(supplier);
+            $('#part_number').val(partNumber);
+
+            // $('#update_part_number_hidden').val(partNumber);
+            $('#requirement').val(requirement);
+            $('#criticality').val(criticality);
+            $('#initial_pic_name').val(picName);
+            $('#initial_dept_name').val(deptName);
+            $('#initial_comment').val(initialComment);
+
+            var noImagePath = '@Url.Content("~/images/not_available.png")';
+            var basePath = '@Url.Content("~/uploads/nok_images/")'; // keys path
+            var imagePath = basePath + fileImage;
+            $(".initial_nok_pic").attr("src", imagePath);
+            $(".initial_nok_pic").attr("onerror", "this.onerror=null;this.src='" + noImagePath + "';");
+
+            $(".initial_nok_pic").off('click').on('click', function() {
+                zoomImage(imagePath, "Defect Picture"); 
+            });
+
+            $('#pic_action').val('');
+            $('#due_date').val('');
+            $('#pic_af1').attr('src', '@Url.Content("~/assets/CameraNG.png")'); 
+            $('#image_af_upload1').val(null); 
+
+            $('.input-group.date').datetimepicker({
+                format: 'YYYY-MM-DD',
+                useCurrent: false
+            });
+
+            updateURLWithReportId(reportID, 'update');
+
+            $('#due_date').val('');
+            $("#modal_update").modal('show');
+        }
+
+        // Fungsi untuk menampilkan modal verify untuk menyelesaikan (close) open point
+        function verify_open_points(checking_id, id1, id2, id3, partNumber, supplierName, category, due_Date, fileActionImage) {
+            $('#checking_id_Verify').val(checking_id)
+            $('#id1_Verify').val(id1)
+            $('#id2_Verify').val(id2)
+            $('#id3_Verify').val(id3)
+            $('#category_Verify').val(category);     
+            $('#part_number_Verify').val(partNumber);
+            $('#supplier_Verify').val(supplierName);   
+            $("#due_date_Verify").val(due_Date);
+
+            // Logika menampilkan gambar perbaikan
+            var noImagePath = '@Url.Content("~/images/not_available.png")';
+            var actionBasePath = '@Url.Content("~/uploads/actions/")'; 
+
+            if (fileActionImage && fileActionImage !== "") {
+                var actionImageUrl = actionBasePath + fileActionImage;
+                $("#action_image_preview").attr("src", actionImageUrl);
+
+                $("#action_image_preview").off('click').on('click', function () {
+                    zoomImage(actionImageUrl, "PIC Action Picture");
+                });
+            } else {
+                $("#action_image_preview").attr("src", noImagePath);
+                $("#action_image_preview").off('click');
+            }
+
+            $("#modal_verify").modal('show');
+        }
+
+        // Fungsi untuk mengirim data update (action dan image action)
+        function update() {
+            // var partNumber = $('#update_part_number_hidden').val();
+            var reportID = $('#update_part_number_hidden').val(); 
+            var picAction = $('#pic_action').val();
+            var dueDate = $('#due_date').val();
+            var imageFile = $('#image_af_upload1')[0].files[0];
+
+            if (!picAction || !dueDate || !imageFile) {
+                Swal.fire('Error', 'Please fill in the Action, Due Date, and Upload a Picture.', 'error');
+                return;
+            }
+
+            var formData = new FormData();
+            // formData.append('partNumber', partNumber);
+            formData.append('reportID', reportID);
+            formData.append('picAction', picAction);
+            formData.append('dueDate', dueDate);
+            if (imageFile) {
+                formData.append('imageFile', imageFile);
+            }
+
+            Swal.fire({
+                title: 'Save Changes?',
+                text: "Make sure the data you entered is correct.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Save!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("UpdateAction", "SmartIQC")",
+                        data: formData,
+                        processData: false, 
+                        contentType: false, 
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Success!', 'Data updated successfully.', 'success').then(() => {
+                                    updateURLWithReportId(null, null);
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Failed!', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error!', 'Unable to connect to server.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Fungsi untuk mengirim instruksi verify ke server untuk menutup status (closed) Open Point
+        function verify() {
+            var reportID = $('#checking_id_Verify').val();
+
+            if (!reportID) {
+                Swal.fire('Error', 'Report ID is missing.', 'error');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Verify Open Point?',
+                text: "Are you sure you want to verify this data?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, Verify!',
+                cancelButtonText: 'No',
+                showLoaderOnConfirm: true, 
+                preConfirm: function () {
+                    return $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("VerifyOpenPoint", "SmartIQC")",
+                        data: { reportID: reportID },
+                        dataType: "json"
+                    }).done(function (response) {
+                        return response; 
+                    }).fail(function (xhr, status, error) {
+                        Swal.showValidationMessage(`Request failed: ${error}`);
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (result.value.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Verified Successfully!'
+                        }).then(() => {
+                            location.reload(); 
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Verification Failed',
+                            text: result.value.message || 'Please check if the action has been updated first.'
+                        });
+                    }
+                }
+            });
+        }
+
+        // Fungsi untuk menampilkan modal untuk change PIC
+        function change_pic(reportID, currentPic) {
+            // Mengisi field Nama PIC saat ini di modal
+            $('#oldPIC').val(currentPic);
+
+            // Menyimpan reportID ke input hidden untuk referensi saat menekan tombol save
+            $('#hidden_part_number_for_pic_change').val(reportID);
+
+            $('#newPIC').val(null).trigger('change');
+
+            // Tampilkan modal
+            $("#modal_pic_change").modal('show');
+        }
+
+        $(document).ready(function () {
+            if ($('#newPIC').length) {
+                $('#newPIC').select2({
+                    placeholder: 'Select New PIC',
+                    width: '100%',
+                    dropdownParent: $('#modal_pic_change'),
+                    ajax: {
+                        url: '@Url.Action("GetPICs", "SmartIQC")',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                term: params.term 
+                            };
+                        },
+                        processResults: function (data) {
+                            return data; 
+                        },
+                        cache: true
+                    }
+                });
+            }
+        });
+
+        // Fungsi untuk mengirim data perubahan PIC baru ke server
+        function changePIC() {
+            // var partNumber = $('#hidden_part_number_for_pic_change').val();
+            var reportID = $('#hidden_part_number_for_pic_change').val();
+            var newPicSesaId = $('#newPIC').val();
+            if (!newPicSesaId) {
+                Swal.fire('Warning', 'Please select a new PIC first.', 'warning');
+                return;
+            }
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "PIC for Report ID " + reportID + " will change.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, change PIC!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("UpdatePIC", "SmartIQC")',
+                        data: {
+                            // partNumber: partNumber,
+                            reportID: reportID,
+                            newPicSesaId: newPicSesaId
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    'Success!',
+                                    'PIC has been changed successfully.',
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Gagal!',
+                                    response.message || 'An error occurred while updating the data.',
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function () {
+                            Swal.fire(
+                                'Error!',
+                                'Unable to connect to server.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        }
+
+        // Fungsi untuk memperbarui string di URL browser agar bisa di share (agar langsung buka modal dari email)
+        function updateURLWithReportId(reportID, modalType) {
+            const url = new URL(window.location.origin + window.location.pathname);
+
+            url.searchParams.delete('order_id');
+            url.searchParams.delete('modal');
+
+            if (reportID) {
+                url.searchParams.set('order_id', reportID);
+                url.searchParams.set('modal', modalType);
+            } else {
+                url.searchParams.delete('modal');
+            }
+            history.pushState({ reportID: reportID, modal: modalType }, '', url.pathname + url.search);
+        }
+
+        // Fungsi untuk membersihkan Report ID dari karakter ilegal atau potongan URL yang tidak perlu
+        function cleanReportIdFromUrl(rawReportID) {
+            if (!rawReportID) return null;
+
+            let decodedID = rawReportID; 
+            let parts = decodedID.split('-');
+
+            if (parts.length > 3) {
+                let cleanID = parts[0] + '-' + parts[1] + '-' + parts[2];
+                console.warn('CleanReportIdFromUrl: The long ID chunk becomes:', cleanID);
+                return cleanID;
+            } 
+    
+            if (decodedID.includes('&')) {
+                return decodedID.split('&')[0];
+            }
+
+            return decodedID;
+        }
+
+        // Fungsi untuk mengambil nilai parameter spesifik dari URL browser
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' ')); 
+        }
+
+        // Fungsi untuk mendeteksi parameter URL saat halaman dimuat untuk membuka modal secara otomatis (fitur email)
+        function autoOpenModalFromURL() {
+            var rawReportIDFromUrl = getUrlParameter('order_id');
+            var modalTypeFromUrl = getUrlParameter('modal');
+            var cleanReportID = cleanReportIdFromUrl(rawReportIDFromUrl);
+
+            if (cleanReportID && modalTypeFromUrl === 'update') {
+                $("#spinner_loading").css("display", "block");
+
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("GetOpenPointDetails", "SmartIQC")",
+                    data: { reportID: cleanReportID },
+                    dataType: "json",
+                    success: function (response) {
+                        $("#spinner_loading").css("display", "none");
+
+                        if (response.success && response.data) {
+                            var item = response.data;
+                            btn_update(
+                                item.report_ID, item.category, item.supplier_Name, 
+                                item.part_Number, item.critical_Part_Status, item.requirement, 
+                                item.piC_Name, item.dept_Name, item.comment, item.file_Image
+                            );
+                        } 
+                        else if (response.isCompleted) {
+                            Swal.fire({
+                                title: 'Completed!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                updateURLWithReportId(null, null);
+                            });
+                        }
+                        else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        $("#spinner_loading").css("display", "none");
+                        Swal.fire('Error', 'Internal Server Error', 'error');
+                    }
+                });
+            }
+        }
+
+        // function downloadData() {
+        //     window.location.href = "ExportExcel?type=open";
+        // }
+
+        // Function to sortir report id berdasarkan asc/desc 
+        jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+            "report-id-numeric-asc": function (a, b) {
+                var x = parseInt(a.split('-')[0], 10);
+                var y = parseInt(b.split('-')[0], 10);
+
+                if (isNaN(x)) x = 0;
+                if (isNaN(y)) y = 0;
+
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            },
+
+            "report-id-numeric-desc": function (a, b) {
+                var x = parseInt(a.split('-')[0], 10);
+                var y = parseInt(b.split('-')[0], 10);
+
+                if (isNaN(x)) x = 0;
+                if (isNaN(y)) y = 0;
+
+                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+            }
+        });
+    </script>
+}

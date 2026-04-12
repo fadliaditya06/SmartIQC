@@ -1,0 +1,826 @@
+﻿@using P1F_IQC.Function
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
+<style>
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    /* Penyelarasan Kartu Dashboard */
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+
+    .modal-dialog {
+        max-width: 100% !important;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .modal {
+        padding-right: 4px !important;
+        padding: .5%;
+    }
+
+    #modal_layer {
+        overflow-y: scroll;
+    }
+
+    .success {
+        border: 3px solid;
+        border-color: #04AA6D;
+        color: green;
+    }
+
+    .clicked_success {
+        background-color: #04AA6D;
+        color: white;
+    }
+
+    .success:hover {
+        background-color: #04AA6D;
+        color: white;
+    }
+
+    .info {
+        border-color: #2196F3;
+        color: dodgerblue;
+    }
+
+    .warning {
+        border: 3px solid;
+        border-color: #ff9800;
+        color: orange;
+    }
+
+    .clicked_warning {
+        background-color: #ff9800;
+        color: white;
+    }
+
+    .warning:hover {
+        background: #ff9800;
+        color: white;
+    }
+
+    .danger {
+        border: 3px solid;
+        border-color: #f44336;
+        color: red;
+    }
+
+    .clicked_danger {
+        background: #f44336;
+        color: white;
+    }
+
+    .danger:hover {
+        background: #f44336;
+        color: white;
+    }
+
+    .btn-outline-danger {
+        color: #f44336;
+        background-color: transparent;
+        border-color: #f44336;
+        opacity: 0.5;
+    }
+
+    .btn-outline-success {
+        color: #04AA6D;
+        background-color: transparent;
+        border-color: #04AA6D;
+        opacity: 0.5;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__clear {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        margin: 0;
+        padding-right: 20px;
+        padding-left: 5px;
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-clipboard-list text-success"></i>
+                <b>Checklist</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-2">
+                <div class="dashboard-card">
+                    <div class="card-body">
+                        <div class="row ml-2 mr-2">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label style="font-size:10pt;">Category <sup class="text-red text-bold">(*)</sup></label>
+                                    <select class="form-control form-control-sm" id="category" style="width:100%;"></select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label style="font-size:10pt;">Issue Category  <sup class="text-red text-bold">(*)</sup></label>
+                                    <select class="form-control form-control-sm" id="issue_category" style="width:100%;"></select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label style="font-size:10pt;">Part Number <sup class="text-red text-bold">(*)</sup></label>
+                                    <select class="form-control form-control-sm" id="part_number" style="width:100%;"></select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label style="font-size:10pt;">Supplier <sup class="text-red text-bold">(*)</sup></label>
+                                    <select class="form-control form-control-sm" id="supplier" style="width:100%;"></select>
+                                </div>
+                            </div>
+                            <div class="col-3 mx-auto">
+                                <div class="form-group text-center">
+                                    <label style="font-size:10pt;">Critical Part ? <sup class="text-red text-bold">(*)</sup></label>
+                                    <div class="row justify-content-center">
+                                        <div class="col-6">
+                                            <button class="btn btn-danger btn-sm btn-block" id="btn_line_notrun"><i class="fas fa-times"></i> NO</button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button class="btn btn-success btn-sm btn-block" id="btn_line_run"><i class="fas fa-check"></i> YES</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-center mt-3">
+                            <div class="col-3 run_card mx-auto">
+                                <button class="btn btn-info btn-sm btn-block" id="check"><i class="fas fa-pen"></i> Start</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal checklist *@
+<div id="modal_layer" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="title text-center"><h5 class="modal-title" id="card_name"><i class="fa fa-info-circle mr-2"></i></h5></div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input hidden class="form form-control" id="ID1" />
+                <input hidden class="form form-control" id="ID2" />
+                <input hidden class="form form-control" id="card" />
+                <div class="row">
+                    <div class="col-12 mt-2" id="table_layer_check"></div>
+                </div>
+                <div class="row">
+                    <div class="col-4 mx-auto">
+                        <div class="mt-2 col-12 d-flex justify-content-center">
+                            <button id="confirm_status_btn" class="btn btn-info btn-block"><i class="fas fa-arrow-right"></i> Confirm Status</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal checklist NOK *@
+<div id="modal_not_run" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document" style="max-width: 110% !important;">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h5 class="modal-title"><i class="fa fa-info-circle mr-2"></i> Observation Comments</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="title text-center"><h3 id="show_tester_name"><i class="fa fa-info-circle mr-2 text-success"></i>Observation</h3></div>
+                <input hidden class="form form-control" id="unique_reff_nok" />
+                <div class="row mt-2" style="margin-top:10px">
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label style="font-size:10pt;">Department <sup class="text-red text-bold">(*)</sup></label>
+                            <select class="form-control form-control-sm" id="department" style="width:100%;">
+
+                                @if (Model.AllDepartments != null)
+                                {
+                                    foreach (var dept in Model.AllDepartments)
+                                    {
+                                        <option value="@dept.id_dept">@dept.dept_name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label style="font-size:10pt;">PIC <sup class="text-red text-bold">(*)</sup></label>
+                            <select class="form-control form-control-sm" id="pic" style="width:100%;">
+                                @if (Model.AllPICs != null)
+                                {
+                                    foreach (var pics in Model.AllPICs)
+                                    {
+                                        <option value="@pics.sesa_id">@pics.name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label style="font-size:10pt;">Critical </label>
+                            <input type="text" id="critical" class="form-control form-control-sm text-center" disabled />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            @* <label style="font-size:10pt;">Requirement </label> *@
+                            <label style="font-size:10pt;">Defect Description </label>
+                            <textarea type="text" id="requirement" rows="3" wrap="hard" class="form-control form-control-sm text-center" disabled></textarea>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label style="font-size:10pt;">Comment <sup class="text-red text-bold">(*)</sup></label>
+                        <textarea class="form-control form-control-sm" type="text" id="comment" rows="3" maxlength="255" style="height:70px;"></textarea>
+                        <div id="counter"></div>
+                    </div>
+                </div>
+                <div class="row justify-content-md-center mt-3">
+                    <div class="col-4 text-center">
+                        <label>Upload Picture <sup class="text-red text-bold">(*)</sup></label>
+                        <br />
+                        <img id="pic_af" src="~/assets/CameraNG.png" alt="Picture After" style="max-width:30%;height:auto" />
+                        <input onchange="readimgaf(this);" type="file" id="image_af_upload" name="image_af_upload" accept="image/png, image/jpeg" hidden />
+                        <br />
+                        <button id="btn_trigger_upload" name="btn_af_upload" class="btn btn-success btn-sm mt-2 mb-3">
+                            <i class="fa fa-upload"></i> Upload
+                        </button>
+                    </div>
+                </div>
+                <div class="row mt-2 mb-3" id="action_btn">
+                    <div class="col-12">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <button class="btn btn-info btn-block" id="btn_information_confirm"><i class="fas fa-arrow-right"></i> Confirm Information</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        var criticalPartStatus = null;
+        var selectedCategoryId = null;
+        var selectedIssueCategoryId = null;
+        var selectedSupplierId = null;
+        var selectedPartNumberId = null;
+        var currentRowForNok = null;
+        var isNokConfirmed = false;
+
+        // Fungsi untuk memastikan apakah checklist sudah ada status (jika sudah selesai muncul tombol confirm)
+        function checkCompletionAndShowButton() {
+            var totalRows = $("#table_layer_check tbody tr").length;
+            var completedRows = $("#table_layer_check tbody tr.status-selesai").length;
+
+            if (totalRows > 0 && totalRows === completedRows) {
+                $('#confirm_status_btn').removeAttr('hidden');
+            } else {
+                $('#confirm_status_btn').attr('hidden', true);
+            }
+        }
+
+        // Fungsi untuk menampilkan data tabel checklist berdasarkan unique reff / part number yang dipilih 
+        function show_table_layer_check(uniqueReff) {
+            var table_layer_check = $("#table_layer_check");
+            table_layer_check.empty();
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ShowLayerCheck", "SmartIQC")",
+                data: { partNumber: uniqueReff },
+                success: function (data) {
+                    table_layer_check.html(data);
+                    checkCompletionAndShowButton();
+                }
+            });
+        }
+
+        // Fungsi untuk menginisialisasi plugin Select2 pada dropdown Department dan PIC di dalam modal agar mendukung fitur pencarian
+        function initializeModalSelect2() {
+            // Initialize department select2
+            $('#department').select2({
+                dropdownParent: $('#modal_not_run'),
+                width: '100%'
+            });
+
+            // Initialize PIC select2
+            $('#pic').select2({
+                dropdownParent: $('#modal_not_run'),
+                width: '100%'
+            });
+        }
+
+        // Fungsi untuk mengumpulkan semua data dari tabel checklist dan mengirimkannya ke server saat tombol "Confirm Status" diklik
+        function handleConfirmStatusClick() {
+            var checklistDetails = [];
+            $("#table_layer_check tbody tr").each(function () {
+                var row = $(this);
+                var uniqueReff = row.find('td:eq(1)').text().trim();
+                var status = row.data('selected-status') || "";
+                var location = row.find('td:eq(2)').text().trim(); 
+                var defectDescription = row.find('td:eq(3)').text().trim();
+
+                if (uniqueReff) {
+                    checklistDetails.push({
+                        Unique_Reff: uniqueReff,
+                        Status: status,
+                        Location: location,
+                        Defect_Description: defectDescription,
+                        IdDept: status === 'NOK' ? row.data('nok-dept') : null,
+                        PicSesaId: status === 'NOK' ? row.data('nok-pic') : null,
+                        Comment: status === 'NOK' ? row.data('nok-comment') : null,
+                        FileImage: status === 'NOK' ? row.data('nok-image') : null
+                    });
+                }
+            });
+
+            var formData = {
+                Commodity_ID: selectedCategoryId,
+                Supplier_ID: selectedSupplierId,
+                Part_Number: $('#part_number option:selected').text(),
+                Critical_Part_Status: criticalPartStatus,
+                Audit_By: "@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value",
+                Id_Issue: selectedIssueCategoryId,
+                Checklist_Details: checklistDetails
+            };
+
+            Swal.fire({
+            title: 'Processing...',
+            text: 'Please wait while we save the checklist',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("SaveChecklist", "SmartIQC")",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                        $('#modal_layer').modal('hide');
+                    } else {
+                        Swal.fire('Failed!', response.message || 'Failed to save checklist.', 'error');
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire('Error!', 'An error occurred on the server.', 'error');
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+        // Fungsi untuk membaca file gambar yang diunggah oleh user dan menampilkannya sebagai preview 
+        function readimgaf(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#pic_af').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Fungsi untuk menyimpan data sementara ke database setiap kali user memberikan status pada baris checklist
+        function saveTemporaryData(uniqueReff, statusText, row, idDept, picSesaId, comment, filePath, issueId, loc, defect) {
+            var tempData = {
+                Commodity_ID: selectedCategoryId,
+                Supplier_ID: selectedSupplierId,
+                Part_Number: $('#part_number option:selected').text(),
+                Critical_Part_Status: criticalPartStatus,
+                Audit_By: "@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value",
+                Id_Issue: issueId,
+                Checklist_Details: [{
+                    Unique_Reff: uniqueReff,
+                    Status: statusText,
+                    IdDept: idDept || null,
+                    PicSesaId: picSesaId || null,
+                    Comment: comment || null,
+                    Location: loc, 
+                    Defect_Description: defect, 
+                    FileImage: filePath || null
+                }]
+            };
+
+           $.ajax({
+                type: "POST",
+                url: "@Url.Action("UpdateTemporaryStatus", "SmartIQC")",
+                contentType: "application/json",
+                data: JSON.stringify(tempData),
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Your progress has been saved.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire('Error', 'Failed to save progress.', 'error');
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
+             // Fungsi Dropdown Category Select2
+             $("#category").select2({
+                 placeholder: "Search Category",
+                 allowClear: false, // set untuk ikon silang di dropdown
+                 ajax: {
+                    url: "@Url.Action("GetCategories", "SmartIQC")",
+                     dataType: 'json',
+                     delay: 250,
+                     data: function (params) { return { term: params.term }; },
+                     // processResults: function (data) { return { results: $.map(data, function (item) { return { id: item.id, text: item.text }; }) }; }
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data.results, function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text
+                                };
+                            })
+                        };
+                    }
+                 }
+             }).on('select2:select', function (e) { selectedCategoryId = e.params.data.id; })
+               .on('select2:unselect', function (e) { selectedCategoryId = null; });
+
+            // Fungsi Dropdown Issue Category Select2
+            $("#issue_category").select2({
+                placeholder: "Search Issue Category",
+                allowClear: false,
+                ajax: {
+                    url: "@Url.Action("GetIssueCategories", "SmartIQC")",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) { return { term: params.term }; },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    id: item.id_issue,    
+                                    text: item.issue_name 
+                                };
+                            })
+                        };
+                    }
+                }
+            }).on('select2:select', function (e) {
+                selectedIssueCategoryId = e.params.data.id;
+            }).on('select2:unselect', function (e) {
+                selectedIssueCategoryId = null;
+            });
+
+             // Fungsi Dropdown Part Number Select2
+             $("#part_number").select2({
+                 placeholder: "Search Part Number",
+                 allowClear: false,
+                 ajax: {
+                    url: "@Url.Action("GetPartNumbers", "SmartIQC")",
+                     dataType: 'json',
+                     delay: 250,
+                     data: function (params) { return { term: params.term }; },
+                     processResults: function (data) {
+                         return {
+                             results: $.map(data, function (item) {
+                                 return {
+                                     id: item.part_Number,
+                                     text: item.part_Number
+                                 };
+                             })
+                         };
+                     }
+                 }
+             }).on('select2:select', function (e) {
+                 selectedPartNumberId = e.params.data.id;
+             }).on('select2:unselect', function (e) {
+                 selectedPartNumberId = null;
+             });
+
+             // Fungsi Dropdown Supplier Select2
+             $("#supplier").select2({
+                 placeholder: "Search Supplier",
+                 allowClear: false,
+                 ajax: {
+                    url: "@Url.Action("GetSuppliers", "SmartIQC")",
+                     dataType: 'json',
+                     delay: 250,
+                     data: function (params) { return { term: params.term }; },
+                     processResults: function (data) { return { results: $.map(data, function (item) { return { id: item.vendor_Code, text: item.supplier_Name }; }) }; }
+                 }
+             }).on('select2:select', function (e) { selectedSupplierId = e.params.data.id; })
+               .on('select2:unselect', function (e) { selectedSupplierId = null; });
+
+            // Fungsi untuk menentukan status apakah part tersebut 'Critical' atau tidak, serta mengubah tampilan warna tombol secara bergantian
+            $("#btn_line_run").click(function () {
+                criticalPartStatus = "YES";
+                $(this).addClass('btn-success').removeClass('btn-outline-success');
+                $("#btn_line_notrun").addClass('btn-outline-danger').removeClass('btn-danger');
+            });
+            $("#btn_line_notrun").click(function () {
+                criticalPartStatus = "NO";
+                $(this).addClass('btn-danger').removeClass('btn-outline-danger');
+                $("#btn_line_run").addClass('btn-outline-success').removeClass('btn-success');
+            });
+
+            // Fungsi untuk memastikan semua field wajib diisi sebelum membuka modal pemeriksaan checklist (Start/Check Buttons)
+            $("#check").click(function () {
+                if (!selectedCategoryId || !selectedPartNumberId || criticalPartStatus === null || !selectedIssueCategoryId) {
+                    Swal.fire('Warning!', 'Please fill in all required fields.', 'warning');
+                    return;
+                }
+                $('#confirm_status_btn').attr('hidden', true);
+                show_table_layer_check(selectedPartNumberId);
+                $('#modal_layer').modal('show');
+                $('#card_name').html('<i class="fas fa-info-circle mr-2"></i> IQC Checklist');
+            });
+
+            // Fungsi untuk menjalankan klik agar user bisa mengunggah gambar melalui tombol kustom
+            $('#btn_trigger_upload').off('click').on('click', function(e) {
+                e.preventDefault();
+                $('#image_af_upload').click();
+            });
+
+            $(document).on("click", "#table_layer_check .btn-status", function () {
+                let row = $(this).closest("tr");
+                let statusText = $(this).data("status");
+                currentRowForNok = row;
+                // let uniqueReff = row.find('td:eq(0)').text().trim();
+                let uniqueReff = row.find('td:eq(1)').text().trim();
+                let location = row.find('td:eq(2)').text().trim();
+                let defectDesc = row.find('td:eq(3)').text().trim();
+                let issueCategoryId = $("#issue_category").val();
+        
+                var isYesButtonActive = $("#btn_line_run").hasClass("btn-success");
+                criticalPartStatus = isYesButtonActive ? "YES" : "NO";
+
+                row.data('selected-status', statusText);
+                row.data('loc', location);
+                row.data('defect', defectDesc);
+
+                if (statusText === "NOK") {
+     
+                    let requirementText = row.find('td:eq(3)').text().trim();
+                    var criticalStatusText = (criticalPartStatus === "YES") ? "Critical" : "Not Critical";
+
+                    $("#critical").val(criticalStatusText);
+                    $("#unique_reff_nok").val(uniqueReff);
+                    $("#requirement").val(requirementText);
+
+                    row.removeClass('status-selesai');
+                    row.find('td:last').empty().html('<span style="font-size:1rem;" class="badge badge-pill badge-info"><i class="fas fa-question"></i></span>');
+
+                    $('#modal_not_run').modal('show');
+                    initializeModalSelect2();
+
+                } else {
+                    row.addClass('status-selesai');
+
+                    let statusCell = row.find('td:last');
+                    statusCell.empty();
+                    if (statusText === "OK") {
+                        statusCell.html('<span style="font-size:1rem;" class="badge badge-pill badge-success"><i class="fas fa-check"></i></span>');
+                    } else if (statusText === "N/A") {
+                        statusCell.html('<span style="font-size:1rem;" class="badge badge-pill badge-warning"><i class="fas fa-not-equal"></i></span>');
+                    }
+
+                    // Save temporary data
+                    saveTemporaryData(uniqueReff, statusText, row, null, null, null, null, issueCategoryId, location, defectDesc);
+                    // saveTemporaryData(uniqueReff, statusText, row);
+                }
+                checkCompletionAndShowButton();
+            });
+
+            // Logic of Closing Capital NOK with Cross Icon
+            $('#modal_not_run').on('hidden.bs.modal', function (e) {
+                var uniqueReff = $('#unique_reff_nok').val();
+                var targetRow = currentRowForNok;
+                // var targetRow = $("#table_layer_check tbody td").filter(function() {
+                //     return $(this).text().trim() == uniqueReff;
+                // }).closest("tr");
+
+                if (targetRow.length && !targetRow.hasClass('status-selesai')) {
+
+                    targetRow.removeData('selected-status');
+                    targetRow.removeClass('status-selesai');
+
+                    targetRow.find('td:last').empty().html('<span style="font-size:1rem;" class="badge badge-pill badge-info"><i class="fas fa-question"></i></span>');
+                }
+                checkCompletionAndShowButton();
+            });
+
+
+            // Logic Confirm Information (Capital NOK)
+            $('#btn_information_confirm').on('click', function() {
+                var department = $('#department').val();
+                var pic = $('#pic').val();
+                var comment = $('#comment').val().trim();
+                var fileInput = $('#image_af_upload')[0];
+                var uniqueReff = $('#unique_reff_nok').val();
+                var issueCategoryId = $("#issue_category").val();
+                var targetRow = currentRowForNok;
+
+                if (!department || !pic || !comment || fileInput.files.length === 0) {
+                    Swal.fire({
+                        title: 'Incomplete Data',
+                        text: 'Please ensure Department, PIC, Comment are filled out and an image is uploaded.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                var targetRow = currentRowForNok;
+
+                var loc = targetRow.data('loc');
+                var defect = targetRow.data('defect');
+
+                var statusCell = targetRow.find('td:last');
+
+                var formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                $.ajax({
+                    url: '@Url.Action("UploadNOKImage", "SmartIQC")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+
+                            // Save complete NOK data to Row Data
+                            targetRow.data('nok-dept', department);
+                            targetRow.data('nok-pic', pic);
+                            targetRow.data('nok-comment', comment);
+                            targetRow.data('nok-image', response.filePath);
+
+                            // Mark Complete & Update Visual Icon
+                            targetRow.data('selected-status', 'NOK').addClass('status-selesai');
+                            statusCell.empty().html('<span style="font-size:1rem;" class="badge badge-pill badge-danger"><i class="fas fa-times"></i></span>');
+
+                            // Save NOK data temporarily to DB
+                            var idDept = targetRow.data('nok-dept');
+                            var picSesaId = targetRow.data('nok-pic');
+                            var commentData = targetRow.data('nok-comment');
+                            var filePathData = targetRow.data('nok-image');
+
+                            // saveTemporaryData(uniqueReff, 'NOK', targetRow, idDept, picSesaId, commentData, filePathData);
+                            saveTemporaryData(uniqueReff, 'NOK', targetRow, department, pic, comment, response.filePath, issueCategoryId, loc, defect);
+
+                            $('#modal_not_run').modal('hide');
+
+                            checkCompletionAndShowButton();
+
+                        } else {
+                            Swal.fire('Upload Failed', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Failed to upload image.', 'error');
+                    }
+                });
+            });
+
+            $('#confirm_status_btn').off('click').on('click', handleConfirmStatusClick);
+        });
+    </script>
+}

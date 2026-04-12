@@ -1,0 +1,82 @@
+﻿@using System.Globalization﻿
+@model List<WristrapCheckModel>
+@using Microsoft.AspNetCore.Http;
+@using P1F_IQC.Function
+
+<table id="tbl_history" class="table professional-table table-sm table-bordered table-striped">
+    <thead class="bg-secondary">
+        <tr style="font-size: 12pt;">
+            <th class="align-middle text-center d-none" style="width: 15%;">ID</th>
+            <th class="align-middle text-center" style="width: 15%;">Inspector</th>
+            <th class="align-middle text-center" style="width: 15%;">Result</th>
+            <th class="align-middle text-center" style="width: 15%;">Remark</th>
+            <th class="align-middle text-center" style="width: 15%;">Date</th>
+            <th class="align-middle text-center" style="width: 15%;">Shift</th>
+            <th class="align-middle text-center" style="width: 15%;">Location</th>
+            <th class="align-middle text-center" style="width: 10%;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mat in Model)
+        {
+            <tr class="align-middle" style="font-size: 12pt;">
+                <td class="text-center align-middle d-none">@mat.id_daily</td>
+                <td class="text-center align-middle pl-2">
+                    @(!string.IsNullOrEmpty(mat.name) ? mat.name : mat.inspector)
+                </td>
+                <td class="text-center align-middle @(mat.result == "NG" ? "bg-danger text-light" : "")">@mat.result</td>
+                <td class="text-center align-middle">@mat.remark</td>
+                <td class="text-center align-middle">@mat.date</td>
+                <td class="text-center align-middle">@mat.shift</td>
+                <td class="text-center align-middle">@mat.location</td>
+                <td class="text-center align-middle">
+                    <button class="btn btn-sm btn-primary"
+                            onclick="btn_updates('@(!string.IsNullOrEmpty(mat.name) ? mat.name : mat.inspector)',
+                                 '@mat.location',
+                                 '@mat.remark?.Replace("\r", "").Replace("\n", " ")',
+                                 '@mat.id_daily')">
+                        Update
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+
+</script>
+
+<style>
+    .dropdown-menu {
+        padding: 10px;
+    }
+
+    .dropdown-item {
+        margin-bottom: 10px;
+    }
+
+    .dropdown-toggle {
+        background-color: #337ab7; 
+        border-color: #2e6da4; 
+        color: #fff;
+    }
+
+    #tbl_history {
+        margin: 0 auto;
+    }
+
+    #tbl_history th, #tbl_history td {
+        padding: 10px;
+    }
+
+    .btn-circle {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 6px;
+        font-size: 12px;
+        margin: 5px;
+    }
+</style>

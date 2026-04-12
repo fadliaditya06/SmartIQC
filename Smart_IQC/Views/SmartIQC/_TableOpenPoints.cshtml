@@ -1,0 +1,129 @@
+﻿@using P1F_IQC.Function
+@model ViewModel
+@using P1F_IQC.Models
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    if (HttpContextAccessor.HttpContext.Session == null)
+    {
+        Url.Action("Logout", "Home");
+    }
+}
+
+<table id="table_details" class="table professional-table table-sm small table-striped table-bordered" style="width:100%;">
+    <thead>
+        <tr class="bg-info text-white text-center">
+            <th class="align-middle text-center"><i class="fas fa-file-alt text-white"></i><br>Report ID</th>
+            <th class="align-middle text-center"><i class="fas fa-cube text-white"></i><br>Category</th>
+            <th class="align-middle text-center"><i class="fas fa-truck text-white"></i><br>Supplier</th>
+            <th class="align-middle text-center"><i class="fas fa-tag text-white"></i><br>Part Number</th>
+            <th class="align-middle text-center"><i class="fas fa-exclamation-circle text-white"></i><br>Criticality</th>
+            <th class="align-middle text-center"><i class="fas fa-calendar-alt text-white"></i><br>Record Date</th>
+            <th class="align-middle text-center"><i class="fas fa-exclamation-triangle text-white"></i><br>Defect Description</th>
+            <th class="align-middle text-center"><i class="fas fa-user-tie text-white"></i><br>PIC</th>
+            <th class="align-middle text-center"><i class="fas fa-check-circle text-white"></i><br>PIC Status</th>
+            <th class="align-middle text-center"><i class="fas fa-comment-dots text-white"></i><br>Comment</th>
+            <th class="align-middle text-center"><i class="fas fa-user-check text-white"></i><br>PIC Action</th>
+            <th class="align-middle text-center"><i class="fas fa-calendar-minus text-white"></i><br>Due</th>
+            <th class="align-middle text-center"><i class="fas fa-tools text-white"></i><br>Action</th>
+        </tr>
+    </thead>
+    <tbody id="table_body">
+        @if (Model.OpenPointsDetails != null && Model.OpenPointsDetails.Any())
+        {
+            foreach (var item in Model.OpenPointsDetails)
+            {
+                <tr>
+                    <td class="align-middle" style="text-align: left !important;">@item.Report_ID</td>
+                    <td class="align-middle">@item.Category</td>
+                    <td class="align-middle" style="text-align: left !important;">@item.Supplier_Name</td>
+                    <td class="align-middle text-center">@item.Part_Number</td>
+                    <td class="align-middle text-center">@item.Critical_Part_Status</td>
+                    <td class="align-middle text-center">@item.Record_Date.ToString("dd/MM/yyyy")</td>
+                    <td class="align-middle" style="text-align: left !important;">@item.Requirement</td>
+                    <td class="align-middle text-center">@item.PIC_Name</td>
+
+                    @if (item.PIC_Status == 0)
+                    {
+                        <td class="align-middle text-center bg-secondary" style="font-size:8pt;">Open</td>
+                    }
+                    else if (item.PIC_Status == 1)
+                    {
+                        <td class="align-middle text-center bg-danger" style="font-size:8pt;">Waiting Verification</td>
+                    }
+                    else if (item.PIC_Status == 2)
+                    {
+                        <td class="align-middle text-center bg-success" style="font-size:8pt;">Closed</td>
+                    }
+                    else
+                    {
+                        <td class="align-middle text-center bg-secondary style="font-size:8pt;">Unknown</td>
+                    }
+
+                    <td class="align-middle">@item.Comment</td>
+                    <td>@item.PIC_Action</td>
+                    <td>@item.Due_Date?.ToString("dd/MM/yyyy")</td>
+
+                    <td class="align-middle text-center">
+                        @{
+                            bool isClosed = item.PIC_Status == 2;
+                            bool isWaitingVerification = item.PIC_Status == 1;
+                            bool isOpen = item.PIC_Status == 0;
+
+                            var loggedInUserSesaId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                            bool isSQE = User.Claims.Any(c => c.Value == "SQE");
+                            bool isCurrentUserThePic = !string.IsNullOrEmpty(loggedInUserSesaId) && item.PicSesaId == loggedInUserSesaId;
+
+                            string updateParams = $"'{item.Report_ID}', '{item.Category}', '{item.Supplier_Name}', '{item.Part_Number}', '{item.Critical_Part_Status}', '{item.Requirement}', '{item.PIC_Name}', '{item.Dept_Name}', '{(item.Comment?.Replace("'", "\\'"))}', '{item.File_Image}'";
+                            string verifyParams = $"'{item.Report_ID}', '{item.Report_ID}', '{item.Report_ID}', '{item.Report_ID}', '{item.Part_Number}', '{item.Supplier_Name}', '{item.Category}', '{item.Due_Date?.ToString("yyyy-MM-dd")}', '{item.File_Action_Image}'";
+                        }
+
+                        @if (isClosed)
+                        {
+                            <span class="text-center" style="font-size:8pt;">Closed</span>
+                        }
+                        else
+                        {
+                            // Tombol Update (Hanya untuk PIC)
+                            if (isOpen)
+                            {
+                                <button class="btn btn-success btn-sm" title="Update Action"
+                                        onclick="btn_update(@Html.Raw(updateParams))" @(!isCurrentUserThePic ? "disabled" : "")>
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            }
+
+                            // Tombol Verify untuk role SQE
+                            else if (isWaitingVerification)
+                            {
+                                string tooltipText = !isSQE ? "Access Denied: SQE Only" : "Verify Action";
+
+                                <span title="@tooltipText" data-toggle="tooltip">
+                                    <button class="btn btn-info btn-sm"
+                                            onclick="verify_open_points(@Html.Raw(verifyParams))"
+                                            @(!isSQE ? "disabled" : "")>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </span>
+                            }
+
+                            // Tombol Change PIC
+                            <button type="button" class="btn btn-sm btn-warning" title="Change PIC"
+                                    onclick="change_pic('@item.Report_ID', '@item.PIC_Name')"
+                                    @(!isCurrentUserThePic || !isOpen ? "disabled" : "")>
+                                <i class="fas fa-user-tie text-white"></i>
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr class="text-center">
+                <td colspan="12" class="align-middle">No Open Points Data to Display</td>
+            </tr>
+        }
+    </tbody>
+</table>

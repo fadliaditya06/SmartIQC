@@ -1,0 +1,877 @@
+﻿@using P1F_IQC.Function
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    DateTime dt = DateTime.Now;
+    var Month = dt.ToString("MMMM");
+
+    if (HttpContextAccessor.HttpContext?.Session == null)
+    {
+        Url.Action("Logout", "Home");
+    }
+}
+
+<style>
+    .custom-backdrop .modal-backdrop {
+        background: rgba(0, 0, 0, 0.8); 
+        backdrop-filter: blur(5px); 
+    }
+
+    #monthchart, #iqcroom, #metrology, #quarantine {
+        max-width: 100%; 
+        height: auto; 
+    }
+
+    :root {
+        --first-color: #E3F8FF;
+        --second-color: #DCFAFB;
+        --third-color: #FFE8DF;
+        --accent-color: #FF5151;
+        --dark-color: #161616;
+    }
+
+    *, ::after, ::before {
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #fff;
+        color: var(--dark-color);
+    }
+
+
+    a {
+        text-decoration: none;
+    }
+
+    .main {
+        padding: 2rem 0;
+    }
+
+    .bd-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        max-width: 1200px;
+        margin-left: 2.5rem;
+        margin-right: 2.5rem;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .title-shop {
+        position: relative;
+        margin: 0 2.5rem;
+    }
+
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    article:nth-child(1) {
+        background-color: var(--second-color);
+    }
+
+    article:nth-child(2) {
+        background-color: var(--second-color);
+    }
+
+    article:nth-child(3) {
+        background-color: var(--second-color);
+    }
+
+    article:nth-child(4) {
+        background-color: var(--second-color);
+    }
+
+    .card__img {
+        width: 100px;
+        height: 150px;
+        padding: 2rem 0;
+    }
+
+    .card__icon {
+        font-size: 1.5rem;
+        color: var(--dark-color);
+    }
+
+    .card__icon:hover {
+        color: var(--accent-color);
+    }
+
+    .card__precis {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        transition: 0.5s;
+    }
+
+    .card__preci {
+        display: block;
+        text-align: center;
+    }
+
+    .card__preci--before {
+        font-size: 1.5em;
+        color: var(--accent-color);
+        margin-bottom: 0.25rem; 
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    #total_req {
+        font-size: 30px; 
+        text-align: center; 
+        font-weight: bold;
+    }
+
+    #total_progress {
+        font-size: 30px; 
+        text-align: center; 
+        font-weight: bold;
+    }
+
+    #total_plan {
+        font-size: 30px; 
+        text-align: center; 
+        font-weight: bold;
+    }
+
+    #total_closed {
+        font-size: 30px; 
+        text-align: center; 
+        font-weight: bold;
+    }
+
+    .card:hover {
+        box-shadow: 0 .5rem 1rem #D1D9E6;
+    }
+
+
+    #modal_detail_th {
+        max-width: 110% !important;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    #chart_status {
+        width: 400px;
+        height: 400px;
+    }
+
+    .modal {
+        padding-right: 4px !important;
+        padding: .5%;
+    }
+  
+    .container {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 12px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .container input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border-radius: 50%;
+    }
+
+    .container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    .container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    .container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    .container .checkmark:after {
+        top: 9px;
+        left: 9px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    #modal_layer {
+        overflow-y: scroll;
+    }
+   
+    .success {
+        border: 3px solid;
+        border-color: #04AA6D;
+        color: green;
+    }
+
+    .clicked_success {
+        background-color: #04AA6D;
+        color: white;
+    }
+
+    .success:hover {
+        background-color: #04AA6D;
+        color: white;
+    }
+
+    .info {
+        border-color: #2196F3;
+        color: dodgerblue;
+    }
+
+    .warning {
+        border: 3px solid;
+        border-color: #ff9800;
+        color: orange;
+    }
+
+    .clicked_warning {
+        background-color: #ff9800;
+        color: white;
+    }
+
+    .warning:hover {
+        background: #ff9800;
+        color: white;
+    }
+
+    .danger {
+        border: 3px solid;
+        border-color: #f44336;
+        color: red;
+    }
+
+    .clicked_danger {
+        background: #f44336;
+        color: white;
+    }
+
+    .danger:hover {
+        background: #f44336;
+        color: white;
+    }
+
+    .select2-selection__choice {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+        color: white !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        margin-left: 0px;
+        margin-right: 18px;
+        border-color: #fff !important;
+        color: #fff !important
+    }
+
+    .select2-container--default .select2-search--inline .select2-search__field:focus {
+        outline: none;
+        border: 1px solid transparent !important;
+    }
+
+    .icon-right {
+        float: right;
+        margin-left: 5px;
+    }
+
+    .text-with-icon {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        background-color: #FFFF;
+        color: #007bff !important;
+    }
+
+    .status-success {
+        color: #28a745; 
+        font-weight: bold;
+    }
+
+    .status-danger {
+        color: #dc3545; 
+        font-weight: bold;
+    }
+
+    .swal2-textarea:focus {
+        border-color: #28a745 !important; 
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25) !important; 
+        outline: none !important;
+    }
+
+    .swal2-textarea:hover {
+        border-color: #218838;
+    }
+
+    .swal2-icon.swal2-info {
+        border-color: #28a745 !important;
+        color: #28a745 !important;
+    }
+
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+</style>
+
+<section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
+    <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
+        <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <h3 class="text-white mb-0">
+                <i class="fa fa-chart-bar text-success"></i>
+                <b>Dashboard</b>
+            </h3>
+        </div>
+    </div>
+</section>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-2 mb-2">
+                <div class="dashboard-card card-success">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-2 col-md-2 col-sm-6" hidden>
+                                <label style="font-size:10pt; font-weight:bold;">Year</label>
+                                <select id="year" style="width:100%;" class="form-control form-control-sm text-center">
+                                    <!-- Options will be generated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-6">
+                                <label style="font-size:10pt; font-weight:bold;">Date From</label>
+                                <input type="date" id="date_from" style="width:100%;" class="form-control form-control-sm text-center">
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-6">
+                                <label style="font-size:10pt; font-weight:bold;">Date To</label>
+                                <input type="date" id="date_to" style="width:100%;" class="form-control form-control-sm text-center">
+                            </div>
+                            <div class="col-lg-2 col-md-3 col-sm-6">
+                                <label style="font-size:10pt; font-weight:bold;">Location</label>
+                                <select id="select_location" class="form-control form-control-sm">
+                                    @if (ViewBag.LocationList != null)
+                                    {
+                                        foreach (var loc in (List<string>)ViewBag.LocationList)
+                                        {
+                                            <option value="@loc">@loc</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">No Location Found</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-sm-6">
+                                <label style="font-size:10pt;"></label>
+                                <div>
+                                    <button id="btn_reset" name="btn_reset" class="btn btn-sm btn-warning btn-block mt-2" onclick="window.location.reload()"><i class="fa fa-history mr-1"></i> </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mt-3">
+                                <div class="card p-2" style="height: 420px; position: relative;">
+                                    <div id="spinner_loading2" class="text-center" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                        <i class="fas fa-spinner fa-spin fa-lg" style="font-size:30pt;"></i>
+                                    </div>
+                                    <div id="linechart"></div>
+                                </div>
+                            </div>
+                           
+                            <div class="col-12 mt-3">
+                                <div class="card p-2" style="height: 400px; position: relative;">
+                                    <div id="spinner_loading2" class="text-center" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                        <i class="fas fa-spinner fa-spin fa-lg" style="font-size:30pt;"></i>
+                                    </div>
+                                    <div id="iqcroom" style="height: 400px;"></div>
+                                </div>
+                            </div>                       
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal_detail_th" class="modal fade">
+    <div class="modal-dialog modal-xl" role="document" style="min-width:85%; margin-top: 50px;">
+        <div class="modal-content">
+            <div id="body_detail_th">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.css" />
+
+    <script>
+        let isSearch = false;
+
+        const currentYear = new Date().getFullYear();
+        const yearSelect = document.getElementById('year');
+    
+        for (let i = currentYear; i >= 2023; i--) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.text = i;
+            yearSelect.appendChild(option);
+        }
+        yearSelect.value = currentYear;
+
+        $(document).ready(function () {
+
+            setTimeout(function () {
+                applyfilter();
+            }, 1000);
+
+            $('#select_location, #date_from, #date_to').on('change', function() {
+                applyfilter(); 
+            });
+        });
+
+        // Fungsi untuk menampilkan modal remark
+        function insert_remark(id, loc, date) {
+            Swal.fire({
+                title: 'Remark',
+                icon: 'info', 
+                input: 'textarea',
+                inputPlaceholder: 'Enter remark...',
+                inputAttributes: {
+                    'aria-label': 'Enter remark'
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: '<i class="fas fa-save"></i> Save',
+                cancelButtonText: '<i class="fas fa-times"></i> Cancel',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'You need to write something!'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const remark_text = result.value;
+
+                    Swal.fire({
+                        title: 'Saving...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        }
+                    });
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("INSERT_REMARK_TH", "TH")",
+                        data: {
+                            id_th: id,
+                            location_remark: loc,
+                            checking_date_remark: date,
+                            remark_metrology: remark_text
+                        },
+                        success: function (data) {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Saved!',
+                                    text: 'Remark inserted successfully!',
+                                    showConfirmButton: true, 
+                                    confirmButtonColor: '#28a745',
+                                    confirmButtonText: 'OK',
+                                }).then(() => {
+                                    if (result.isConfirmed) {
+                                        applyfilter();
+                                        $("#modal_detail_th").modal('hide');
+                                    }
+                                });
+                            } else {
+                                Swal.fire('Error', 'Failed to save: ' + data.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Internal Server Error', 'error');
+                        }
+                    });
+                }
+            })
+        }
+
+        // Fungsi untuk menampilkan detail remark yang telah diinput
+        function show_remark_info(remarkText) {
+            Swal.fire({
+                title: 'Remark',
+                icon: 'info',
+                html: `<div style="text-align: center; font-size: 1.1rem; margin-top: 10px;">${remarkText}</div>`,
+                showCloseButton: false,
+                focusConfirm: false,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#6f42c1',
+                customClass: {
+                    title: 'text-dark',
+                    confirmButton: 'px-4 py-2'
+                }
+            });
+        }
+
+        // Fungsi untuk menarik data dari server berdasarkan filter tanggal
+        function applyfilter() {
+            var year = $('#year').val();
+            var date_from = $('#date_from').val();
+            var date_to = $('#date_to').val();
+            var loc = $('#select_location').val();
+
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("CHART_IQCROOM", "TH")",
+                data: {
+                    date_from: date_from,
+                    date_to: date_to,
+                    loc: loc
+                },
+                success: function (data) {
+                    if (data.length > 0) {
+                        const totalData = data.reduce((acc, item) => {
+                            acc.ok += item.ok;
+                            acc.nok += item.nok;
+                            return acc;
+                        }, { ok: 0, nok: 0 });
+
+                        const chartData = [
+                            {
+                                name: 'OK',
+                                y: totalData.ok,
+                                color: '#04AA6D'
+                            },
+                            {
+                                name: 'NOK',
+                                y: totalData.nok,
+                                color: '#f44336'
+                            }
+                        ];
+
+                        Highcharts.chart('iqcroom', {
+                            chart: {
+                                type: 'pie',
+                                custom: { 
+                                    label: null
+                                },
+                                events: {
+                                    render() {
+                                        const chart = this,
+                                        series = chart.series[0];
+                                        let customLabel = chart.options.chart.custom.label;
+
+                                        if (!customLabel) {
+                                            customLabel = chart.options.chart.custom.label =
+                                                chart.renderer.label(
+                                                    'Total<br/>' +
+                                                    '<strong>' + (totalData.ok + totalData.nok) + '</strong>'
+                                                )
+                                                    .css({
+                                                        color: '#000',
+                                                        textAnchor: 'middle'
+                                                    })
+                                                    .add();
+                                        }
+
+                                        const x = series.center[0] + chart.plotLeft,
+                                            y = series.center[1] + chart.plotTop - (customLabel.attr('height') / 2);
+
+                                        customLabel.attr({
+                                            x,
+                                            y
+                                        });
+                                        customLabel.css({
+                                            fontSize: `${series.center[2] / 12}px`
+                                        });
+                                    }
+                                }
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            series: [{
+                                name: 'Test',
+                                colorByPoint: true,
+                                innerSize: '75%',
+                                data: chartData
+                            }],
+                            title: { text: loc, align: 'center' },
+                            plotOptions: {
+                                series: {
+                                    cursor: 'pointer',
+                                    point: {
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        borderRadius: 8,
+                                        dataLabels: [{
+                                            enabled: true,
+                                            distance: 20,
+                                            format: '{point.name}: {point.y}'
+                                        }, {
+                                            enabled: false
+                                        }],
+                                        showInLegend: true,
+                                        events: {
+                                            click: function (event) {
+                                                const audit_status = event.point.name;
+                                                $("#modal_detail_th").modal("show");
+                                                $.ajax({
+                                                    url: '@Url.Action("GET_TH_DETAIL")', 
+                                                    type: 'GET',
+                                                    data: {
+                                                        date_from: date_from,
+                                                        date_to: date_to,
+                                                        loc: loc,
+                                                        audit_status: audit_status,
+                                                    },
+                                                    success: function (data) {
+                                                        $('div#body_detail_th').html(data);
+                                                    },
+                                                    error: function (error) {
+                                                        console.log('Error fetching details:', error);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching donut chart data:', error);
+                },
+                complete: function () {
+                    $('#spinner_loading2').hide();
+                }
+            });
+
+            $.ajax({
+                url: "@Url.Action("CHART_VALUETH", "TH")",
+                type: 'GET',
+                data: {
+                    date_from: date_from,
+                    date_to: date_to,
+                    loc: loc
+                },
+                success: function (data) {
+                    var categories = [];
+                    var temperatureData = [];
+                    var humidityData = [];
+                    var temperatureStatus = [];
+                    var humidityStatus = [];
+
+                    data.forEach(function (item) {
+                        categories.push(item.insp_date);
+                        temperatureData.push({
+                            y: parseFloat(item.temperature_value),
+                            status: item.temperature_status,
+                            unit: '°C'
+                        });
+                        humidityData.push({
+                            y: parseFloat(item.humidity_value),
+                            status: item.humidity_status,
+                            unit: '%'
+                        });
+                    });
+
+                    const labelWidth = 100;
+                    const chartWidth = Math.max(500, categories.length * labelWidth);
+
+                    Highcharts.chart('linechart', {
+                        chart: {
+                            type: 'line',
+                            scrollablePlotArea: {
+                                minWidth: chartWidth,
+                                scrollPositionX: 1,
+                                backgroundColor: 'white'
+                            }
+                        },
+                        title: {
+                            text: 'Temperature & Humidity ' + loc
+                        },
+                        xAxis: {
+                            categories: categories,
+                            scrollbar: {
+                                enabled: true
+                            },
+                            minRange: 1,
+                            tickInterval: 1
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Value'
+                            }
+                        },
+                        plotOptions: {
+                            line: {
+                                dataLabels: {
+                                    enabled: true,
+                                    formatter: function () {
+                                        return this.y + this.point.unit;
+                                    }
+                                },
+                                enableMouseTracking: true,
+                                pointPadding: 0.4,
+                                groupPadding: 0.4
+                            }
+                        },
+                        series: [{
+                            name: 'Temperature',
+                            data: temperatureData,
+                            color: '#FF5733' 
+                        }, {
+                            name: 'Humidity',
+                            data: humidityData
+                        }],
+                        tooltip: {
+                            useHTML: true,
+                            formatter: function () {
+                                var index = this.point.index;
+                                var inspDate = categories[index];
+                                var status = this.point.status;
+                                var statusClass = status === 'OK' ? 'status-success' : 'status-danger';
+                                return '' + this.series.name + ': ' + this.y + this.point.unit + '<br>Date: ' + inspDate + '<br>Status: <span class="' + statusClass + '">' + status + '</span>';
+                            }
+                        }
+                    });
+                },
+                error: function (error) {
+                    console.log('Error fetching data:', error);
+                }
+            });
+        }
+    </script>
+}
