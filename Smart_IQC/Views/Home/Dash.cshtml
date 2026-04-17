@@ -1,183 +1,16 @@
-﻿@using P1F_IQC.Models;
-@using P1F_IQC.Function
+﻿@using Smart_IQC.Models;
+@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http
 
 @{
     Layout = "~/Views/Shared/_LayoutDash.cshtml";
-    var level = User.FindFirst("p1f_iqc_level")?.Value;
-    var userApps = User.FindFirst("p1f_iqc_apps")?.Value ?? "";
+    var level = User.FindFirst("Smart_IQC_level")?.Value;
+    var userApps = User.FindFirst("Smart_IQC_apps")?.Value ?? "";
 
     bool hasIQC = userApps.Contains("APP-IQC");
     bool hasTH = userApps.Contains("APP-TH");
     bool hasWrist = userApps.Contains("APP-WRI");
 }
-
-<div class="layout-navbar-fixed" style="padding: 0 !important; margin: 0 !important">
-    <div class="wrapper">
-        <div class="bg-dark py-3">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-7 col-md-12 mb-3 mb-md-0">
-                        <div class="logo-text">
-                            <span class="smart">Smart </span>
-                            <span class="iqc">IQC </span>
-                            <span class="sub-app"> Apps</span>
-                        </div>
-                        <div class="description-container" style="max-width: 650px;">
-                            <p id="typing-text" class="lead text-light" style="font-size: 1.15rem; line-height: 1.7; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
-                            </p>
-                        </div>
-                        <div class="mt-4" data-aos="fade-up" data-aos-delay="400">
-                            <a href="#solutions" class="btn btn-success btn-lg px-4 shadow-sm" style="border-radius: 30px;">
-                                Explore IQC Solutions <i class="fas fa-arrow-down ml-2"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="solutions" class="d-flex justify-content-center p-md-2 pt-0 mt-4">
-            <h1 id="typing-solutions" class="display-5 text-dt"></h1>
-        </div>
-
-        <div class="container mt-3 mb-5">
-            <div class="row gx-4 gy-4 justify-content-center">
-
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <a href="@(hasIQC? Url.Action("Dashboard", "SmartIQC") : "#")"
-                       class="text-decoration-none @(!hasIQC ? "disabled-link" : "")">
-                        <div class="card bg-white border h-100 shadow-sm @(!hasIQC ? "access-denied" : "")"
-                             data-aos="fade-up" data-aos-duration="400">
-                            <div class="card-body py-5 text-center d-flex flex-column align-items-center">
-                                <img src="~/images/logo/tracking.png" class="mb-4 icon-display" style="width: 100px; height: 100px; object-fit: contain;">
-                                <h3 class="text-dark">Smart IQC</h3>
-                                <p class="text-muted mb-0">Inspection quality control system</p>
-                                @if (!hasIQC)
-                                {
-                                    <span class="badge badge-secondary mt-2">Locked</span>
-                                }
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <a href="@(hasTH? Url.Action("DashboardTH", "TH") : "#")"
-                       class="text-decoration-none @(!hasTH ? "disabled-link" : "")">
-                        <div class="card bg-white border h-100 shadow-sm @(!hasTH ? "access-denied" : "")"
-                             data-aos="fade-up" data-aos-duration="600">
-                            <div class="card-body py-5 text-center d-flex flex-column align-items-center">
-                                <img src="~/images/logo/temperature.png" class="mb-4 icon-display" style="width: 100px; height: 100px; object-fit: contain;">
-                                <h3 class="text-dark">Temperature Humidity</h3>
-                                <p class="text-muted mb-0">Daily room environment monitoring</p>
-                                @if (!hasTH)
-                                {
-                                    <span class="badge badge-secondary mt-2">Locked</span>
-                                }
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <a href="@(hasWrist? Url.Action("WristrapCheck", "Wristrap") : "#")"
-                       class="text-decoration-none @(!hasWrist ? "disabled-link" : "")">
-                        <div class="card bg-white border h-100 shadow-sm @(!hasWrist ? "access-denied" : "")"
-                             data-aos="fade-up" data-aos-duration="800">
-                            <div class="card-body py-5 text-center d-flex flex-column align-items-center">
-                                <img src="~/images/logo/wristrap.png" class="mb-4 icon-display" style="width: 100px; height: 100px; object-fit: contain;">
-                                <h3 class="text-dark">Wriststrap Check</h3>
-                                <p class="text-muted mb-0">Daily wriststrap verification</p>
-                                @if (!hasWrist)
-                                {
-                                    <span class="badge badge-secondary mt-2">Locked</span>
-                                }
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    @section Scripts {
-        <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/TextPlugin.min.js"></script>
-
-        <script>
-            $(document).ready(function () {
-                AOS.init({ once: true, duration: 200 });
-                gsap.registerPlugin(TextPlugin);
-
-                if ($("#typing-solutions").length) {
-                    gsap.to("#typing-solutions", { duration: 1.5, text: "IQC Solutions", ease: "none" });
-                }
-
-                const fullText = "Smart IQC (Inspection Quality Control) Apps is a digital transformation solution for IQC, facilitating efficient and transparent communication. It ensures that all vital information is recorded digitally and remains accessible online at any time, promoting a seamless and automated data environment.";
-
-                if ($("#typing-text").length) {
-                    let tl = gsap.timeline({ repeat: -1 });
-                    tl.to("#typing-text", { duration: 3, text: fullText, opacity: 1, ease: "none" })
-                        .to({}, { duration: 30 })
-                        .to("#typing-text", { duration: 2, opacity: 0, ease: "power1.inOut" })
-                        .set("#typing-text", { text: "" });
-                }
-
-                $('#logout-link').on('click', function (event) {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, logout!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '@Url.Action("Logout", "Home")';
-                        }
-                    });
-                });
-            });
-
-            function toggleDailyCheckItems() {
-                var container = document.getElementById("dailyCheckContainer");
-                var dailyCheckCard = document.getElementById("dailyCheckCard");
-
-                if (container && dailyCheckCard) {
-                    var dailyCheckCardDiv = dailyCheckCard.querySelector('.card');
-                    var isHidden = container.style.display === "none" || container.style.display === "";
-
-                    container.style.display = isHidden ? "block" : "none";
-
-                    if (isHidden) {
-                        if (dailyCheckCardDiv) dailyCheckCardDiv.classList.add("bg-light-gray");
-                        container.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                        if (dailyCheckCardDiv) dailyCheckCardDiv.classList.remove("bg-light-gray");
-                    }
-                }
-            }
-
-            document.addEventListener('click', function (event) {
-                var container = document.getElementById("dailyCheckContainer");
-                var checkListLink = document.getElementById("checkListLink");
-                var dailyCheckCard = document.getElementById("dailyCheckCard");
-
-                if (container && checkListLink && dailyCheckCard) {
-                    var dailyCheckCardDiv = dailyCheckCard.querySelector('.card');
-
-                    if (!container.contains(event.target) && !checkListLink.contains(event.target)) {
-                        container.style.display = "none";
-                        if (dailyCheckCardDiv) dailyCheckCardDiv.classList.remove("bg-light-gray");
-                    }
-                }
-            });
-        </script>
-    }
-
-</div>
 
 <style>
     #typing-text::after {
@@ -391,3 +224,171 @@
         opacity: 0.5;
     }
 </style>
+
+
+<div class="layout-navbar-fixed" style="padding: 0 !important; margin: 0 !important">
+    <div class="wrapper">
+        <div class="bg-dark py-3">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-7 col-md-12 mb-3 mb-md-0">
+                        <div class="logo-text">
+                            <span class="smart">Smart </span>
+                            <span class="iqc">IQC </span>
+                            <span class="sub-app"> Apps</span>
+                        </div>
+                        <div class="description-container" style="max-width: 650px;">
+                            <p id="typing-text" class="lead text-light" style="font-size: 1.15rem; line-height: 1.7; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
+                            </p>
+                        </div>
+                        <div class="mt-4" data-aos="fade-up" data-aos-delay="400">
+                            <a href="#solutions" class="btn btn-success btn-lg px-4 shadow-sm" style="border-radius: 30px;">
+                                Explore IQC Solutions <i class="fas fa-arrow-down ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="solutions" class="d-flex justify-content-center p-md-2 pt-0 mt-4">
+            <h1 id="typing-solutions" class="display-5 text-dt"></h1>
+        </div>
+
+        <div class="container mt-3 mb-5">
+            <div class="row gx-4 gy-4 justify-content-center">
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <a href="@(hasIQC? Url.Action("Dashboard", "SmartIQC") : "#")"
+                       class="text-decoration-none @(!hasIQC ? "disabled-link" : "")">
+                        <div class="card bg-white border h-100 shadow-sm @(!hasIQC ? "access-denied" : "")"
+                             data-aos="fade-up" data-aos-duration="400">
+                            <div class="card-body py-5 text-center d-flex flex-column align-items-center">
+                                <img src="~/images/logo/tracking.png" class="mb-4 icon-display" style="width: 100px; height: 100px; object-fit: contain;">
+                                <h3 class="text-dark">Smart IQC</h3>
+                                <p class="text-muted mb-0">Inspection quality control system</p>
+                                @if (!hasIQC)
+                                {
+                                    <span class="badge badge-secondary mt-2">Locked</span>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <a href="@(hasTH? Url.Action("DashboardTH", "TH") : "#")"
+                       class="text-decoration-none @(!hasTH ? "disabled-link" : "")">
+                        <div class="card bg-white border h-100 shadow-sm @(!hasTH ? "access-denied" : "")"
+                             data-aos="fade-up" data-aos-duration="600">
+                            <div class="card-body py-5 text-center d-flex flex-column align-items-center">
+                                <img src="~/images/logo/temperature.png" class="mb-4 icon-display" style="width: 100px; height: 100px; object-fit: contain;">
+                                <h3 class="text-dark">Temperature Humidity</h3>
+                                <p class="text-muted mb-0">Daily room environment monitoring</p>
+                                @if (!hasTH)
+                                {
+                                    <span class="badge badge-secondary mt-2">Locked</span>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <a href="@(hasWrist? Url.Action("WristrapCheck", "Wristrap") : "#")"
+                       class="text-decoration-none @(!hasWrist ? "disabled-link" : "")">
+                        <div class="card bg-white border h-100 shadow-sm @(!hasWrist ? "access-denied" : "")"
+                             data-aos="fade-up" data-aos-duration="800">
+                            <div class="card-body py-5 text-center d-flex flex-column align-items-center">
+                                <img src="~/images/logo/wristrap.png" class="mb-4 icon-display" style="width: 100px; height: 100px; object-fit: contain;">
+                                <h3 class="text-dark">Wriststrap Check</h3>
+                                <p class="text-muted mb-0">Daily wriststrap verification</p>
+                                @if (!hasWrist)
+                                {
+                                    <span class="badge badge-secondary mt-2">Locked</span>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/TextPlugin.min.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                AOS.init({ once: true, duration: 200 });
+                gsap.registerPlugin(TextPlugin);
+
+                if ($("#typing-solutions").length) {
+                    gsap.to("#typing-solutions", { duration: 1.5, text: "IQC Solutions", ease: "none" });
+                }
+
+                const fullText = "Smart IQC (Inspection Quality Control) Apps is a digital transformation solution for IQC, facilitating efficient and transparent communication. It ensures that all vital information is recorded digitally and remains accessible online at any time, promoting a seamless and automated data environment.";
+
+                if ($("#typing-text").length) {
+                    let tl = gsap.timeline({ repeat: -1 });
+                    tl.to("#typing-text", { duration: 3, text: fullText, opacity: 1, ease: "none" })
+                        .to({}, { duration: 30 })
+                        .to("#typing-text", { duration: 2, opacity: 0, ease: "power1.inOut" })
+                        .set("#typing-text", { text: "" });
+                }
+
+                $('#logout-link').on('click', function (event) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, logout!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '@Url.Action("Logout", "Home")';
+                        }
+                    });
+                });
+            });
+
+            function toggleDailyCheckItems() {
+                var container = document.getElementById("dailyCheckContainer");
+                var dailyCheckCard = document.getElementById("dailyCheckCard");
+
+                if (container && dailyCheckCard) {
+                    var dailyCheckCardDiv = dailyCheckCard.querySelector('.card');
+                    var isHidden = container.style.display === "none" || container.style.display === "";
+
+                    container.style.display = isHidden ? "block" : "none";
+
+                    if (isHidden) {
+                        if (dailyCheckCardDiv) dailyCheckCardDiv.classList.add("bg-light-gray");
+                        container.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        if (dailyCheckCardDiv) dailyCheckCardDiv.classList.remove("bg-light-gray");
+                    }
+                }
+            }
+
+            document.addEventListener('click', function (event) {
+                var container = document.getElementById("dailyCheckContainer");
+                var checkListLink = document.getElementById("checkListLink");
+                var dailyCheckCard = document.getElementById("dailyCheckCard");
+
+                if (container && checkListLink && dailyCheckCard) {
+                    var dailyCheckCardDiv = dailyCheckCard.querySelector('.card');
+
+                    if (!container.contains(event.target) && !checkListLink.contains(event.target)) {
+                        container.style.display = "none";
+                        if (dailyCheckCardDiv) dailyCheckCardDiv.classList.remove("bg-light-gray");
+                    }
+                }
+            });
+        </script>
+    }
+
+</div>

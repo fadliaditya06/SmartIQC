@@ -1,4 +1,4 @@
-﻿@using P1F_IQC.Function
+﻿@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http;
 @using System.Globalization;
 @inject IHttpContextAccessor HttpContextAccessor
@@ -17,6 +17,125 @@
     {
     }
 }
+
+<style>
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+
+    .btn-primary {
+        background-color: #F96E2A !important;
+    }
+
+    .container {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 12px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .container input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+</style>
 
 <section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
     <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
@@ -102,125 +221,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .hero {
-        min-height: 70px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        color: #fff;
-        margin-bottom: 0 !important;
-        z-index: 1;
-    }
-
-    .hero .position-absolute {
-        width: 100%;
-    }
-
-    .hero .hero-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.65);
-    }
-
-    .hero .hero-body {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-    }
-
-    .hero .hero-title {
-        font-size: 28px;
-        font-weight: 700;
-        letter-spacing: 0.2px;
-    }
-
-    .inner {
-        height: 70px;
-        position: relative;
-    }
-
-    .main-content-row {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-
-    .hero {
-        margin-bottom: 0 !important;
-    }
-
-    /* Penyelarasan Kartu Dashboard */
-    .dashboard-card {
-        background: #ffffff;
-        border-radius: 15px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
-        border: none !important;
-        margin-bottom: 30px;
-        position: relative;
-        z-index: 10;
-    }
-
-    .dashboard-card:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .dashboard-card .card-body {
-        padding: 24px;
-    }
-
-    .mt-n4 {
-        margin-top: -45px !important;
-    }
-
-    .dashboard-card .card-body {
-        padding: 35px !important;
-    }
-
-    .px-md-5 {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
-    }
-
-    .container-fluid {
-        max-width: 98%;
-        margin: 0 auto;
-    }
-
-    .dashboard-card .card-body {
-        padding: 30px !important;
-    }
-
-    @@media (max-width: 768px) {
-        .px-md-5 {
-            padding-left: 0.75rem !important;
-            padding-right: 0.75rem !important;
-        }
-    }
-
-    .btn-primary {
-        background-color: #F96E2A !important;
-    }
-
-    .container {
-        display: block;
-        position: relative;
-        padding-left: 35px;
-        margin-bottom: 12px;
-        cursor: pointer;
-        font-size: 12px;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    .container input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-    }
-</style>
 
 @section Scripts {
     <script>

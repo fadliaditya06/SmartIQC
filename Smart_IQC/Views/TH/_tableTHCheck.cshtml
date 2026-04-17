@@ -2,7 +2,7 @@
 @using System.Data;
 @using System.Text.RegularExpressions;
 @using System.Globalization;
-@using P1F_IQC.Function
+@using Smart_IQC.Function
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
@@ -21,7 +21,6 @@
         }).ToList();
     }
 
-    // Variabel dinamis hari ini 
     DateTime today = DateTime.Today;
 }
 
@@ -54,6 +53,50 @@
         };
     }
 }
+
+<style>
+    .btn-uniform {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 6px !important;
+        font-size: 14px !important;
+    }
+
+    .btn-primary {
+        background-color: #F96E2A !important;
+        border-color: #F96E2A !important;
+    }
+
+    .btn-warning {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+
+    .professional-table thead th {
+        background-color: var(--primary-blue) !important;
+        color: white !important;
+        text-align: center;
+        vertical-align: middle;
+        text-transform: uppercase;
+        font-size: 11px;
+        border-right: 1px solid white !important;
+        border-bottom: 1px solid white !important;
+    }
+
+    .professional-table thead th:first-child {
+        border-left: 1px solid white !important;
+    }
+
+    .professional-table td {
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .professional-table {
+        border-collapse: separate !important;
+        border-spacing: 0;
+    }
+</style>
 
 <table id="tbl_history" class="table professional-table table-sm table-bordered table-striped align-middle text-center"
        style="width: 100%; table-layout: fixed; margin-bottom: 0;">
@@ -160,47 +203,3 @@
         }
     </tbody>
 </table>
-
-<style>
-    .btn-uniform {
-        width: 40px !important;
-        height: 40px !important;
-        padding: 6px !important;
-        font-size: 14px !important;
-    }
-
-    .btn-primary {
-        background-color: #F96E2A !important;
-        border-color: #F96E2A !important;
-    }
-
-    .btn-warning {
-        background-color: #ffc107 !important;
-        border-color: #ffc107 !important;
-        color: #212529 !important;
-    }
-
-    .professional-table thead th {
-        background-color: var(--primary-blue) !important;
-        color: white !important;
-        text-align: center;
-        vertical-align: middle;
-        text-transform: uppercase;
-        font-size: 11px;
-        border-right: 1px solid white !important;
-        border-bottom: 1px solid white !important;
-    }
-
-    .professional-table thead th:first-child {
-        border-left: 1px solid white !important;
-    }
-
-    .professional-table td {
-        border: 1px solid #dee2e6 !important;
-    }
-
-    .professional-table {
-        border-collapse: separate !important;
-        border-spacing: 0;
-    }
-</style>

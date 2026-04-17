@@ -1,10 +1,10 @@
-﻿@model List<P1F_IQC.Models.WorkInstructionModel>
+﻿@model List<Smart_IQC.Models.WorkInstructionModel>
 @{
     ViewData["Title"] = "Work Instruction";
 }
 
 <style>
-    /* Konfigurasi ukuran font */
+    
     #table_wi_list tbody td {
         font-size: 11pt !important; 
         color: #333 !important;
@@ -114,7 +114,7 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
+    
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important;
@@ -187,7 +187,7 @@
                                     <img src="~/images/logo/manual-book.png" alt="Manual Book" class="wi-book" />
                                     <h5 class="wi-title">View WI Smart IQC</h5>
                                 </div>
-                                @if (User.HasClaim("p1f_iqc_level", "admin"))
+                                @if (User.HasClaim("Smart_IQC_level", "admin"))
                                 {
                                     <button class="btn btn-info btn-block wi-button mt-4" id="upload-button-trigger"><i class="fas fa-upload mr-2"></i>Upload New WI</button>
                                 }
@@ -281,7 +281,6 @@
         $(document).ready(function() {
             var tableWI;
 
-            // Inisialisasi DataTables
             $('#wiListModal').on('show.bs.modal', function () {
                 setTimeout(function() {
                     if (!$.fn.DataTable.isDataTable('#table_wi_list')) {
@@ -293,7 +292,7 @@
                             "info": true,
                             "autoWidth": false,
                             "responsive": true,
-                            "pageLength": 10, // Default entries set 10
+                            "pageLength": 10, 
                             "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]], 
                             "order": [[4, "desc"]],
                             "columnDefs": [{ "targets": "no-sort", "orderable": false }],

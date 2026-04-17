@@ -1,15 +1,15 @@
-﻿@using P1F_IQC.Function
+﻿@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
 @{
-    string level = User.FindFirst("p1f_iqc_level")?.Value;
-    string name = User.FindFirst("p1f_iqc_name")?.Value;
+    string level = User.FindFirst("Smart_IQC_level")?.Value;
+    string name = User.FindFirst("Smart_IQC_name")?.Value;
     string sesa_id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-    string role = User.FindFirst("p1f_iqc_role")?.Value;
+    string role = User.FindFirst("Smart_IQC_role")?.Value;
     bool admin = !string.IsNullOrEmpty(level) && level.Contains("admin");
     bool inspector = !string.IsNullOrEmpty(level) && level.Contains("inspector");
 
-    var userApps = User.FindFirst("p1f_iqc_apps")?.Value ?? "";
+    var userApps = User.FindFirst("Smart_IQC_apps")?.Value ?? "";
     bool hasIQC = userApps.Contains("APP-IQC");
     bool hasTH = userApps.Contains("APP-TH");
     bool hasWrist = userApps.Contains("APP-WRI");
@@ -219,9 +219,6 @@
         var sesaId = '@sesa_id';
             if (sesaId && sesaId !== '' && sesaId !== 'null' && sesaId !== 'undefined') {
                 setTimeout(showSessionExpirationModal, 30 * 60 * 1000);
-
-                // (10 detik)
-                // setTimeout(showSessionExpirationModal, 10 * 1000); 
             }
         });
     </script>

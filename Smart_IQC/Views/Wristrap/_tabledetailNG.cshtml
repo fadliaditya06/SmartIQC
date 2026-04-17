@@ -1,7 +1,40 @@
 ﻿@using System.Globalization﻿
 @model List<WristrapCheckModel>
 @using Microsoft.AspNetCore.Http;
-@using P1F_IQC.Function
+@using Smart_IQC.Function
+
+<style>
+    .dropdown-menu {
+        padding: 10px;
+    }
+
+    .dropdown-item {
+        margin-bottom: 10px;
+    }
+
+    .dropdown-toggle {
+        background-color: #337ab7; 
+        border-color: #2e6da4; 
+        color: #fff;
+    }
+
+    #tbl_history {
+        margin: 0 auto;
+    }
+
+    #tbl_history th, #tbl_history td {
+        padding: 10px;
+    }
+
+    .btn-circle {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 6px;
+        font-size: 12px;
+        margin: 5px;
+    }
+</style>
 
 <table id="tbl_history" class="table professional-table table-sm table-bordered table-striped">
     <thead class="bg-secondary">
@@ -42,41 +75,3 @@
         }
     </tbody>
 </table>
-
-
-<script>
-
-</script>
-
-<style>
-    .dropdown-menu {
-        padding: 10px;
-    }
-
-    .dropdown-item {
-        margin-bottom: 10px;
-    }
-
-    .dropdown-toggle {
-        background-color: #337ab7; 
-        border-color: #2e6da4; 
-        color: #fff;
-    }
-
-    #tbl_history {
-        margin: 0 auto;
-    }
-
-    #tbl_history th, #tbl_history td {
-        padding: 10px;
-    }
-
-    .btn-circle {
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        padding: 6px;
-        font-size: 12px;
-        margin: 5px;
-    }
-</style>

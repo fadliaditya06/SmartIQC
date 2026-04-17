@@ -1,4 +1,4 @@
-﻿namespace P1F_IQC.Models
+﻿namespace Smart_IQC.Models
 {
     public class PICModel
     {

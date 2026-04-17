@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using OfficeOpenXml;
 
-namespace P1F_IQC.Service
+namespace Smart_IQC.Service
 {
     public interface ITokenService
     {
@@ -36,11 +36,11 @@ namespace P1F_IQC.Service
                         { "refresh_token", refreshToken },
                         { "client_id", _configuration["Auth:ClientId"] },
                         { "client_secret", _configuration["Auth:ClientSecret"] },
-                        { "scope", "openid profile" } // Adjust scopes as needed
+                        { "scope", "openid profile" } 
                     };
 
                     var requestContent = new FormUrlEncodedContent(tokenRequest);
-                    var tokenEndpoint = $"{_configuration["Auth:TokenEndpoint"]}"; // Adjust as per your Auth settings
+                    var tokenEndpoint = $"{_configuration["Auth:TokenEndpoint"]}"; 
                     var response = await httpClient.PostAsync(tokenEndpoint, requestContent);
 
                     if (response.IsSuccessStatusCode)
@@ -48,18 +48,15 @@ namespace P1F_IQC.Service
                         var content = await response.Content.ReadAsStringAsync();
                         var tokenResponse = JsonSerializer.Deserialize<RefreshTokenResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                        // Check if the token response contains valid tokens
                         if (tokenResponse != null)
                         {
-                            // Save the new tokens in cookies (or wherever they are maintained)
                             httpContext.Response.Cookies.Append("access_token", tokenResponse.access_token, new CookieOptions
                             {
                                 HttpOnly = true,
-                                Secure = true, // Ensure this is true in production
-                                SameSite = SameSiteMode.Strict // Adjust as needed
+                                Secure = true, 
+                                SameSite = SameSiteMode.Strict 
                             });
 
-                            // Update or set refresh token if necessary
                             if (!string.IsNullOrEmpty(tokenResponse.refresh_token))
                             {
                                 httpContext.Response.Cookies.Append("refresh_token", tokenResponse.refresh_token, new CookieOptions
@@ -70,32 +67,25 @@ namespace P1F_IQC.Service
                                 });
                             }
 
-                            return true; // Indicate that the refresh was successful
+                            return true; 
                         }
                     }
                 }
             }
             catch (HttpRequestException httpRequestException)
             {
-                // Handle specific HTTP request errors
-                // Log the exception and return false
-                // For example, you might log to a file or monitoring service
                 Console.WriteLine($"HTTP Request error: {httpRequestException.Message}");
-                // Optionally perform specific actions based on status codes here
             }
             catch (JsonException jsonException)
             {
-                // Handle JSON deserialization errors
                 Console.WriteLine($"JSON Deserialization error: {jsonException.Message}");
             }
             catch (Exception ex)
             {
-                // Handle all other exceptions
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                // You might want to log it or take some recovery steps
             }
 
-            return false; // Indicate the refresh failed
+            return false; 
         }
     }
     public class RefreshTokenResponse

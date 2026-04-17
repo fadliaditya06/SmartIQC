@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using P1F_IQC.Function;
-using P1F_IQC.Models;
+using Smart_IQC.Function;
+using Smart_IQC.Models;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.Data.SqlClient;
 
-namespace P1F_IQC.Controllers
+namespace Smart_IQC.Controllers
 {
     public class HomeController : Controller
     {
@@ -24,7 +24,7 @@ namespace P1F_IQC.Controllers
         [Authorize]
         public IActionResult Open()
         {
-            string user_level = User.FindFirst("p1f_iqc_level")?.Value;
+            string user_level = User.FindFirst("Smart_IQC_level")?.Value;
             if (user_level != null && user_level.ToLower() != "no_access")
             {
                 switch (user_level.ToLower())
@@ -77,10 +77,10 @@ namespace P1F_IQC.Controllers
 
                 var claimsIdentity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
                 claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userDetail.sesa_id));
-                claimsIdentity.AddClaim(new Claim("p1f_iqc_name", userDetail.name));
-                claimsIdentity.AddClaim(new Claim("p1f_iqc_level", string.IsNullOrEmpty(userDetail.level) ? "no_access" : userDetail.level.ToLower()));
-                claimsIdentity.AddClaim(new Claim("p1f_iqc_role", userDetail.role ?? ""));
-                claimsIdentity.AddClaim(new Claim("p1f_iqc_apps", userDetail.apps_id ?? ""));
+                claimsIdentity.AddClaim(new Claim("Smart_IQC_name", userDetail.name));
+                claimsIdentity.AddClaim(new Claim("Smart_IQC_level", string.IsNullOrEmpty(userDetail.level) ? "no_access" : userDetail.level.ToLower()));
+                claimsIdentity.AddClaim(new Claim("Smart_IQC_role", userDetail.role ?? ""));
+                claimsIdentity.AddClaim(new Claim("Smart_IQC_apps", userDetail.apps_id ?? ""));
 
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
@@ -93,7 +93,7 @@ namespace P1F_IQC.Controllers
         [Authorize]
         public IActionResult Dash()
         {
-            string level = User.FindFirst("p1f_iqc_level")?.Value;
+            string level = User.FindFirst("Smart_IQC_level")?.Value;
 
             if (string.IsNullOrEmpty(level) || level.ToLower() == "no_access")
             {

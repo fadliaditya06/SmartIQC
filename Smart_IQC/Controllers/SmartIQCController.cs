@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
-using P1F_IQC.Function;
-using P1F_IQC.Models;
+using Smart_IQC.Function;
+using Smart_IQC.Models;
 
-namespace P1F_IQC.Controllers
+namespace Smart_IQC.Controllers
 {
     [Authorize]
     public class SmartIQCController : Controller

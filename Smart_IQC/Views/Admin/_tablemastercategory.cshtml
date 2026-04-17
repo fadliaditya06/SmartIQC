@@ -1,6 +1,6 @@
 ﻿@model List<CommodityModel>
 @using Microsoft.AspNetCore.Http;
-@using P1F_IQC.Function
+@using Smart_IQC.Function
 
 <table id="tbl_category" class="table professional-table table-sm table-hover" style="width: 100%; border: 1px solid #dee2e6;">
     <thead>
@@ -38,13 +38,11 @@
 </table>
 
 <style>
-    /* Reset & Dasar Tabel */
     #tbl_category {
         background-color: white;
         border-collapse: collapse !important; 
     }
 
-    /* Gaya Tombol Edit (Kuning) */
     .btn-edit {
         background-color: #ffc107;
         color: #333;
@@ -59,7 +57,6 @@
         transition: 0.3s;
     }
 
-    /* Gaya Tombol Delete (Merah) */
     .btn-delete {
         background-color: #dc3545;
         color: white;
@@ -89,12 +86,10 @@
         font-size: 11px;
     }
 
-    /* Sel Pemisah Antar Kolom */
     .border-left {
         border-left: 1px solid #dee2e6 !important;
     }
 
-    /* Body Styling */
     #tbl_category tbody td {
         padding: 10px;
         border-bottom: 1px solid #dee2e6;
@@ -102,12 +97,10 @@
         color: #333;
     }
 
-    /* Hover tanpa animasi gerak */
     #tbl_category tbody tr:hover {
         background-color: #f8f9fa !important;
     }
 
-    /* Badge Modern */
     .badge {
         padding: 4px 10px;
         border-radius: 4px;
@@ -118,7 +111,6 @@
     .badge-admin { background-color: #e3f2fd; color: #0d47a1; }
     .badge-inspector { background-color: #FFD700; color: #424242; border: 1px solid #FFEA00; }
 
-    /* Action Button Minimalis */
     .btn-action-minimal {
         background: transparent;
         border: none;
@@ -136,7 +128,6 @@
         box-shadow: none;
     }
 
-    /* Dropdown Menu Styling */
     .dropdown-menu {
         z-index: 1050;
         font-size: 14px;
@@ -145,16 +136,14 @@
         padding: 5px; 
     }
 
-    /* Hover untuk Menu Edit */
     .dropdown-item.hover-edit:hover {
-        background-color: #FFF9C4 !important; /* Kuning sangat pucat/tipis */
+        background-color: #FFF9C4 !important; 
         color: #333;
         border-radius: 4px;
     }
 
-    /* Hover untuk Menu Delete */
     .dropdown-item.hover-delete:hover {
-        background-color: #FFEBEE !important; /* Merah sangat pucat/tipis */
+        background-color: #FFEBEE !important; 
         color: #d32f2f !important;
         border-radius: 4px;
     }

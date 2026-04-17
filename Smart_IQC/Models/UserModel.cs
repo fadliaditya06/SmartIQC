@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace P1F_IQC.Models
+namespace Smart_IQC.Models
 {
     public class UserDetailModel
     {
@@ -11,9 +11,5 @@ namespace P1F_IQC.Models
         public string? email { get; set; }
         public string? apps_id { get; set; }
         public string? dept_id { get; set; }
-        public string? manager_sesa_id { get; set; }
-        public string? manager_name { get; set; }
-        public string? manager_email { get; set; }
-        //public string? apps_name { get; set; }
     }
 }

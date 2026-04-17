@@ -1,4 +1,4 @@
-﻿@model List<P1F_IQC.Models.DefectLibraryModel>
+﻿@model List<Smart_IQC.Models.DefectLibraryModel>
 @{
     ViewData["Title"] = "Defect Library";
 }
@@ -54,7 +54,6 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important;
@@ -149,7 +148,6 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Inisialisasi DataTable tanpa Ajax (karena data sudah di-render server-side)
             $('#defectTable').DataTable({
                 "destroy": true,
                 "paging": true,
@@ -166,11 +164,8 @@
 
         // Fungsi untuk menampilkan modal gambar
         function showImageModal(src, title) {
-            // Masukkan src gambar ke elemen img di dalam modal
             $('#modalImage').attr('src', src);
-            // Update judul modal sesuai nama defect
             $('#modalTitle').html('<i class="fas fa-search-plus mr-2"></i> Detail ' + title);
-            // Tampilkan modal
             $('#imageDetailModal').modal('show');
         }
     </script>

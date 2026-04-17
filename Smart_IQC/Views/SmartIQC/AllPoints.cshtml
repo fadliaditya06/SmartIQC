@@ -1,4 +1,4 @@
-﻿@using P1F_IQC.Models
+﻿@using Smart_IQC.Models
 @using Microsoft.AspNetCore.Http
 @model ViewModel
 
@@ -49,7 +49,7 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
+    
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important;
@@ -108,12 +108,12 @@
         padding-right: 4px !important;
         padding: .5%;
     }
-    /* Glow */
+    
     .effect:hover, .effect:focus, .effect:active {
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     }
 
-    /* DataTable Filter Row Styling */
+    
     .filter-row {
         background-color: #f4f4f4;
     }
@@ -129,7 +129,7 @@
         border: 1px solid #d2d6de;
     }
 
-    /* Ensure filter inputs are visible and styled consistently */
+    
     #table_details thead tr.filter-row th input {
         display: block;
         width: 100%;
@@ -210,7 +210,6 @@
                 success: function (data) {
                     $("#tblDetails").html(data);
 
-                    // 1. Inisialisasi DataTable
                     var table = $("#table_details").DataTable({
                         "paging": true,
                         "searching": true,
@@ -256,7 +255,6 @@
             table_apply();
         });
 
-        // Function to sortir number
         jQuery.extend(jQuery.fn.dataTableExt.oSort, {
             "report-id-numeric-asc": function (a, b) {
                 var x = parseInt(a.split('-')[0], 10);

@@ -4,16 +4,16 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using P1F_IQC.Function;
-using P1F_IQC.Service;
-using P1F_IQC.Models;
+using Smart_IQC.Function;
+using Smart_IQC.Service;
+using Smart_IQC.Models;
 using System.Data.SqlClient;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace P1F_IQC.Controllers
+namespace Smart_IQC.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -52,28 +52,28 @@ namespace P1F_IQC.Controllers
 
             var claimsIdentity = (ClaimsIdentity)User.Identity;
 
-            var existName = claimsIdentity?.FindFirst("p1f_iqc_name");
+            var existName = claimsIdentity?.FindFirst("Smart_IQC_name");
             if (existName != null)
             {
                 claimsIdentity.RemoveClaim(existName);
             }
-            var existLevel = claimsIdentity?.FindFirst("p1f_iqc_level");
+            var existLevel = claimsIdentity?.FindFirst("Smart_IQC_level");
             if (existLevel != null)
             {
                 claimsIdentity.RemoveClaim(existLevel);
             }
-            var existRole = claimsIdentity?.FindFirst("p1f_iqc_role");
+            var existRole = claimsIdentity?.FindFirst("Smart_IQC_role");
             if (existRole != null)
             {
                 claimsIdentity.RemoveClaim(existRole);
             }
-            var existApps = claimsIdentity?.FindFirst("p1f_iqc_apps");
+            var existApps = claimsIdentity?.FindFirst("Smart_IQC_apps");
             if (existApps != null)
             {
                 claimsIdentity.RemoveClaim(existApps);
             }
 
-            claimsIdentity.AddClaim(new Claim("p1f_iqc_name", full_name));
+            claimsIdentity.AddClaim(new Claim("Smart_IQC_name", full_name));
             //string userRole = "TEST";
 
             // Check if role retrieval was successful
@@ -83,34 +83,31 @@ namespace P1F_IQC.Controllers
                 if (!string.IsNullOrEmpty(user.level))
                 {
                     // Create a new claim for the user role
-                    claimsIdentity.AddClaim(new Claim("p1f_iqc_level", user.level));
-                    claimsIdentity.AddClaim(new Claim("p1f_iqc_role", user.role));
-                    claimsIdentity.AddClaim(new Claim("p1f_iqc_apps", user.apps_id));
+                    claimsIdentity.AddClaim(new Claim("Smart_IQC_level", user.level));
+                    claimsIdentity.AddClaim(new Claim("Smart_IQC_role", user.role));
+                    claimsIdentity.AddClaim(new Claim("Smart_IQC_apps", user.apps_id));
                 }
                 else
                 {
-                    claimsIdentity.AddClaim(new Claim("p1f_iqc_level", "no_access"));
+                    claimsIdentity.AddClaim(new Claim("Smart_IQC_level", "no_access"));
                 }
             }
             else
             {
-                claimsIdentity.AddClaim(new Claim("p1f_iqc_level", "no_access"));
+                claimsIdentity.AddClaim(new Claim("Smart_IQC_level", "no_access"));
             }
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
             return Redirect(originalPath);
         }
-        //[HttpGet("Login")]
-        //public IActionResult Login()
-        //{
-        //    return Challenge(new AuthenticationProperties { RedirectUri = Url.Action("GetUserProfile") });
-        //}
+
         [HttpGet("test-refresh")]
         public async Task<IActionResult> TestRefresh(string refreshToken)
         {
             var result = await _tokenService.RefreshAccessToken(refreshToken, HttpContext);
             return Ok(result);
         }
+
         [HttpGet("RefreshToken")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -147,53 +144,30 @@ namespace P1F_IQC.Controllers
             var newTokenResponse = await tokenResponse.Content.ReadAsStringAsync();
             var newTokens = JsonSerializer.Deserialize<RefreshTokenResponse>(newTokenResponse);
 
-            // Save new tokens in the authentication properties (optional)
             result.Properties.UpdateTokenValue("access_token", newTokens.access_token);
             if (!string.IsNullOrEmpty(newTokens.refresh_token))
             {
                 result.Properties.UpdateTokenValue("refresh_token", newTokens.refresh_token);
             }
 
-            // Sign in the user again with the updated tokens
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, result.Principal, result.Properties);
 
             return RedirectToAction("TokenInfo"); ;
         }
 
-        //[Authorize]
-        //[HttpGet("TokenInfo")]
-        //public async Task<IActionResult> TokenInfo()
-        //{
-        //    var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        //    //var userName = User.Identity.Name;
-        //    if (!result.Succeeded)
-        //    {
-        //        return BadRequest("Authentication failed.");
-        //    }
-        //    var accessToken = result.Properties.GetTokenValue("access_token");
-        //    var refreshToken = result.Properties.GetTokenValue("refresh_token");
-
-        //    return Ok(new { AccessToken = accessToken, RefreshToken = refreshToken });
-        //}
-        //[Authorize]
         [HttpGet("CheckClaim")]
         public async Task<IActionResult> CheckClaim()
         {
             string sesa_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            string name = User.FindFirst("p1f_iqc_name")?.Value;
+            string name = User.FindFirst("Smart_IQC_name")?.Value;
             return Ok(sesa_id + " - " + name);
         }
         [Authorize]
         [HttpGet("GetUserProfile")]
         public async Task<IActionResult> GetUserProfile()
         {
-            //var sub = User.FindFirst("preferred_username")?.Value;
-            //var name = User.FindFirst("company")?.Value;
-            //return Ok(new { sesa_id = sub, name = name });
-            //var result = await HttpContext.AuthenticateAsync();
             var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             var accessToken = result.Properties.GetTokenValue("access_token");
-            ////var accessToken = await HttpContext.GetTokenAsync("access_token");
             if (!result.Succeeded)
             {
                 return BadRequest("Authentication failed.");
@@ -201,12 +175,8 @@ namespace P1F_IQC.Controllers
             string userInfoEndpoint = _configuration["Auth:UserInfoEndpoint"];
             var client = _httpClientFactory.CreateClient();
 
-            // Set the authorization header with the access token
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            //client.DefaultRequestHeaders.Host = "ping-sso-uat.schneider-electric.com";
-
-            // Make the request to the user info endpoint
             HttpResponseMessage response = await client.GetAsync(userInfoEndpoint);
 
             if (!response.IsSuccessStatusCode)
@@ -216,11 +186,6 @@ namespace P1F_IQC.Controllers
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
             var userProfile = JsonSerializer.Deserialize<dynamic>(jsonResponse);
-
-            //{"sub":"SESA546923","lastName":"WIRYADINATA","manager":"SESA768540","employeeID":"SESA546923","preferred_username":"SESA546923","managerName":"RAMADHAN, Aditya Kurnia",
-            //"title":"RPA & SOFTWARE DEVELOPER","employeeNumber":"10815193","division":"Global Supply Chain","firstName":"ADIEL","company":"PT SCHNEIDER ELECTRIC MANUFACTURING BATAM",
-            //"state":"Indonesia","email":"Adiel.WIRYADINATA@se.com"}
-            //var userId = userProfile?.sub;
             var profile = userProfile;
 
             return Ok(new { Profile = profile });

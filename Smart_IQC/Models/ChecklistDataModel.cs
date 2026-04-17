@@ -1,9 +1,8 @@
-﻿namespace P1F_IQC.Models
+﻿namespace Smart_IQC.Models
 {
     public class ChecklistDataModel
     {
         public string? Commodity_ID { get; set; }
-        //public int? Supplier_ID { get; set; }
         public string? Supplier_ID { get; set; }
         public string? Location { get; set; }
         public string? Defect_Description { get; set; }

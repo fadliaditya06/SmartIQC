@@ -1,4 +1,4 @@
-﻿@using P1F_IQC.Function
+﻿@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
 @{
@@ -25,7 +25,7 @@
         user-select: none;
     }
 
-    /* Modal Add dan Edit */
+    
     #modal_add, #modal_edit {
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -47,7 +47,7 @@
     #modal_add .form-control, #modal_edit .form-control {
         border: 1px solid #ccc;
         border-radius: 5px;
-        font-size: 14px; /* Perubahan ukuran font */
+        font-size: 14px; 
     }
 
     #modal_add .form-control:focus, #modal_edit .form-control:focus {
@@ -56,7 +56,7 @@
     }
 
     #modal_add .form-control:hover, #modal_edit .form-control:hover {
-        border-color: #aaa; /* Tambahkan warna hover */
+        border-color: #aaa; 
     }
 
     #modal_add .btn, #modal_edit .btn {
@@ -66,7 +66,7 @@
         background-color: #3dcd58;
         color: #fff;
         cursor: pointer;
-        transition: background-color 0.3s ease; /* Tambahkan animasi */
+        transition: background-color 0.3s ease; 
     }
 
     #modal_add .btn:hover, #modal_edit .btn:hover {
@@ -173,7 +173,7 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
+    
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important;

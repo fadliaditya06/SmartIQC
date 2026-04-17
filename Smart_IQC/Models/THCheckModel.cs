@@ -1,9 +1,7 @@
-﻿namespace P1F_IQC.Models
+﻿namespace Smart_IQC.Models
 {
     public class THCheckModel
     {
-        //public string Text { get; set; }
-
         public string? id { get; set; }
         public string? insp_date { get; set; }
         public string? insp_trip { get; set; }

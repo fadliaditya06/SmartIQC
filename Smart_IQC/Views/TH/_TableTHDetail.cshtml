@@ -1,15 +1,15 @@
 ﻿@using System.Globalization;
 @using Microsoft.AspNetCore.Http;
-@using P1F_IQC.Controllers;
-@using P1F_IQC.Function;
+@using Smart_IQC.Controllers;
+@using Smart_IQC.Function;
 @model List<THCheckModel>
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
     string loc = ViewBag.loc;
     string audit_status = ViewBag.audit_status;
-    string role = User.FindFirst("p1f_iqc_role")?.Value;
-    string level = User.FindFirst("p1f_iqc_level")?.Value;
+    string role = User.FindFirst("Smart_IQC_role")?.Value;
+    string level = User.FindFirst("Smart_IQC_level")?.Value;
 }
 
 <style>

@@ -1,4 +1,4 @@
-﻿@using P1F_IQC.Function
+﻿@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -49,7 +49,6 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important;
@@ -339,7 +338,6 @@
                     </div>
                     <div class="col-6">
                         <div class="form-group">
-                            @* <label style="font-size:10pt;">Requirement </label> *@
                             <label style="font-size:10pt;">Defect Description </label>
                             <textarea type="text" id="requirement" rows="3" wrap="hard" class="form-control form-control-sm text-center" disabled></textarea>
                         </div>
@@ -562,13 +560,12 @@
              // Fungsi Dropdown Category Select2
              $("#category").select2({
                  placeholder: "Search Category",
-                 allowClear: false, // set untuk ikon silang di dropdown
+                 allowClear: false, 
                  ajax: {
                     url: "@Url.Action("GetCategories", "SmartIQC")",
                      dataType: 'json',
                      delay: 250,
                      data: function (params) { return { term: params.term }; },
-                     // processResults: function (data) { return { results: $.map(data, function (item) { return { id: item.id, text: item.text }; }) }; }
                     processResults: function (data) {
                         return {
                             results: $.map(data.results, function (item) {
@@ -683,7 +680,6 @@
                 let row = $(this).closest("tr");
                 let statusText = $(this).data("status");
                 currentRowForNok = row;
-                // let uniqueReff = row.find('td:eq(0)').text().trim();
                 let uniqueReff = row.find('td:eq(1)').text().trim();
                 let location = row.find('td:eq(2)').text().trim();
                 let defectDesc = row.find('td:eq(3)').text().trim();
@@ -721,10 +717,7 @@
                     } else if (statusText === "N/A") {
                         statusCell.html('<span style="font-size:1rem;" class="badge badge-pill badge-warning"><i class="fas fa-not-equal"></i></span>');
                     }
-
-                    // Save temporary data
                     saveTemporaryData(uniqueReff, statusText, row, null, null, null, null, issueCategoryId, location, defectDesc);
-                    // saveTemporaryData(uniqueReff, statusText, row);
                 }
                 checkCompletionAndShowButton();
             });
@@ -733,9 +726,6 @@
             $('#modal_not_run').on('hidden.bs.modal', function (e) {
                 var uniqueReff = $('#unique_reff_nok').val();
                 var targetRow = currentRowForNok;
-                // var targetRow = $("#table_layer_check tbody td").filter(function() {
-                //     return $(this).text().trim() == uniqueReff;
-                // }).closest("tr");
 
                 if (targetRow.length && !targetRow.hasClass('status-selesai')) {
 
@@ -786,24 +776,19 @@
                     contentType: false,
                     success: function(response) {
                         if (response.success) {
-
-                            // Save complete NOK data to Row Data
                             targetRow.data('nok-dept', department);
                             targetRow.data('nok-pic', pic);
                             targetRow.data('nok-comment', comment);
                             targetRow.data('nok-image', response.filePath);
 
-                            // Mark Complete & Update Visual Icon
                             targetRow.data('selected-status', 'NOK').addClass('status-selesai');
                             statusCell.empty().html('<span style="font-size:1rem;" class="badge badge-pill badge-danger"><i class="fas fa-times"></i></span>');
 
-                            // Save NOK data temporarily to DB
                             var idDept = targetRow.data('nok-dept');
                             var picSesaId = targetRow.data('nok-pic');
                             var commentData = targetRow.data('nok-comment');
                             var filePathData = targetRow.data('nok-image');
 
-                            // saveTemporaryData(uniqueReff, 'NOK', targetRow, idDept, picSesaId, commentData, filePathData);
                             saveTemporaryData(uniqueReff, 'NOK', targetRow, department, pic, comment, response.filePath, issueCategoryId, loc, defect);
 
                             $('#modal_not_run').modal('hide');

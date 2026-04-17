@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using P1F_IQC.Function;
-using P1F_IQC.Models;
+using Smart_IQC.Function;
+using Smart_IQC.Models;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Security.Claims;
 
-namespace P1F_IQC.Controllers
+namespace Smart_IQC.Controllers
 {
     [Authorize]
     public class WristrapController : Controller

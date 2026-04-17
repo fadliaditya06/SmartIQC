@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
-using P1F_IQC.Function;
-using P1F_IQC.Models;
+using Smart_IQC.Function;
+using Smart_IQC.Models;
 using System.Data;
 using System.Security.Claims;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
-namespace P1F_IQC.Controllers
+namespace Smart_IQC.Controllers
 {
     [Authorize(Policy = "RequireAdmin")]
     public class AdminController : Controller
@@ -18,7 +18,7 @@ namespace P1F_IQC.Controllers
         // Fungsi untuk mengambil hak akses level user
         private string GetUserLevel()
         {
-            return User.FindFirst("p1f_iqc_level")?.Value?.ToLower();
+            return User.FindFirst("Smart_IQC_level")?.Value?.ToLower();
         }
 
         private string DbConnection()

@@ -1,4 +1,4 @@
-﻿@using P1F_IQC.Models
+﻿@using Smart_IQC.Models
 @using Microsoft.AspNetCore.Http
 
 @model ViewModel
@@ -50,7 +50,7 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
+    
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important;
@@ -109,12 +109,12 @@
         overflow-y: auto !important;
     }
 
-    /* Glow */
+    
     .effect:hover, .effect:focus, .effect:active {
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     }
 
-    /* DataTable Filter Row Styling */
+    
     .filter-row {
         background-color: #f4f4f4;
     }
@@ -130,7 +130,7 @@
         border: 1px solid #d2d6de;
     }
 
-    /* Ensure filter inputs are visible and styled consistently */
+    
     #table_details thead tr.filter-row th input {
         display: block;
         width: 100%;
@@ -209,7 +209,6 @@
             </div>
             <div class="modal-body">
                 <div class="title text-center"><h3 id="show_tester_name"><i class="fa fa-info-circle mr-2"></i> Verify</h3></div>
-                @*<input hidden class="form form-control" id="checking_id" />*@
                 <input hidden class="form form-control" id="id1_Verify" />
                 <input hidden class="form form-control" id="id2_Verify" />
                 <input hidden class="form form-control" id="id3_Verify" />
@@ -276,7 +275,6 @@
             </div>
             <div class="modal-body">
                 <div class="title text-center"><h3 id="show_tester_name"><i class="fa fa-info-circle mr-2"></i> Update</h3></div>
-                @*<input hidden class="form form-control" id="checking_id" />*@
                 <input type="hidden" id="update_part_number_hidden" />
                 <input hidden class="form form-control" id="id1" />
                 <input hidden class="form form-control" id="id2" />
@@ -284,7 +282,6 @@
                 <input hidden class="form form-control" id="shift_name" />
                 <div class="row">
                     <div class="col-6">
-                        @* <label style="font-size:10pt;">Requirement</label> *@
                         <label style="font-size:10pt;">Defect Description</label>
                         <textarea id="requirement" class="form-control form-control-sm" rows="2" disabled></textarea>
                     </div>
@@ -432,12 +429,10 @@
 
 @section Scripts {
     <script>
-        // Trigger klik pada input file hidden saat tombol upload diklik
         $("button[name=btn_af_upload1]").click(function () {
             $("#image_af_upload1").click();
         });
 
-        // Trigger klik pada pratinjau gambar untuk mengganti file gambar
         $("#pic_af1").click(function () {
             $("#image_af_upload1").click();
         });
@@ -484,13 +479,11 @@
             $("#show_image").modal("hide");
         }
 
-        // Deklarasi variabel global
         var tblDetails;
         var date_from = "";
         var date_to = "";
 
         $(document).ready(function () {
-            // Inisialisasi selector tabel
             tblDetails = $("#tblDetails");
 
             // Logika Pengaturan Tanggal (Default: Awal bulan s/d Hari ini)
@@ -502,20 +495,16 @@
             var current_day = yyyy + '-' + mm + '-' + dd;
             var first_day_month = yyyy + '-' + mm + '-01';
 
-            // Ambil nilai dari input jika sudah ada, jika kosong gunakan default
             date_from = $('#date_from').val() || first_day_month;
             date_to = $('#date_to').val() || current_day;
 
-            // Set nilai ke elemen input di layar
             $('#date_from').val(date_from);
             $('#date_to').val(date_to);
 
-            // Event Modal (Reset URL saat modal ditutup)
             $("#modal_update").on('hidden.bs.modal', function () {
                 updateURLWithReportId(null, null);
             });
 
-            // Logika Load Tabel - Menjalankan restore filter jika ada di localstorage, jika tidak load tabel biasa
             if (localStorage.getItem('openPointsFilterState0')) {
                 if (typeof restoreFilterStates === "function") {
                     restoreFilterStates();
@@ -547,7 +536,6 @@
             var select_cell_name = $('#select_cell_name').val()
             var select_family = $('#select_family').val()
 
-            // Table Details
             $.ajax({
                 type: "GET",
                 url: "@Url.Action("ShowOpenPoints0")",
@@ -560,7 +548,6 @@
                 success: function (data) {
                     tblDetails.html(data);
 
-                    // Initialize DataTable with custom filtering
                     var table = $("#table_details").DataTable({
                         "paging": true,
                         "ordering": true,
@@ -580,8 +567,8 @@
                     ],
                         "initComplete": function (settings, json) {
                             // Fungsi ini menambahkan input teks filter di bawah setiap header kolom dan menangani logika pencarian kolom secara real-time
-                            $("#table_details").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");  // Wrap table for horizontal scrolling
-                            // Add filter row below header
+                            $("#table_details").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");  
+                        
                             var filterRow = $('<tr class="filter-row"></tr>');
                             var headers = $(this.api().table().header()).find('th');
 
@@ -589,7 +576,6 @@
                                 var th = $(this);
                                 var filterCell = $('<th></th>');
 
-                                // Skip filter for the last column (Action)
                                 if (index < headers.length - 1) {
                                     var input = $('<input>', {
                                         type: 'text',
@@ -600,20 +586,17 @@
 
                                     filterCell.append(input);
                                 } else {
-                                    filterCell.text(''); // Empty cell for Action column
+                                    filterCell.text(''); 
                                 }
 
                                 filterRow.append(filterCell);
                             });
 
-                            // Insert filter row
                             $(this.api().table().header()).append(filterRow);
 
-                            // Apply column filtering
                             this.api().columns().every(function (index) {
                                 var column = this;
 
-                                // Skip filtering for Action column
                                 if (index < headers.length - 1) {
                                     $('tr.filter-row th:eq(' + index + ') input').on('keyup change clear', function () {
                                         if (column.search() !== this.value) {
@@ -630,7 +613,7 @@
                     });
                 },
                 complete: function () {
-                    spinner_filter = $("#spinner_filter");  // Check if we have saved filters to restore
+                    spinner_filter = $("#spinner_filter");  
 
                     // Logika untuk mengembalikan state filter dari LocalStorage jika ada
                     if (localStorage.getItem('openPointsFilterState0')) {
@@ -644,7 +627,6 @@
                         });
                     }
                     spinner_filter.css("display", "none");
-                    // Membuka modal otomatis berdasarkan parameter URL
                     autoOpenModalFromURL();
                 },
                 error: function (err) {
@@ -661,7 +643,6 @@
             $('#supplier').val(supplier);
             $('#part_number').val(partNumber);
 
-            // $('#update_part_number_hidden').val(partNumber);
             $('#requirement').val(requirement);
             $('#criticality').val(criticality);
             $('#initial_pic_name').val(picName);
@@ -669,7 +650,7 @@
             $('#initial_comment').val(initialComment);
 
             var noImagePath = '@Url.Content("~/images/not_available.png")';
-            var basePath = '@Url.Content("~/uploads/nok_images/")'; // keys path
+            var basePath = '@Url.Content("~/uploads/nok_images/")'; 
             var imagePath = basePath + fileImage;
             $(".initial_nok_pic").attr("src", imagePath);
             $(".initial_nok_pic").attr("onerror", "this.onerror=null;this.src='" + noImagePath + "';");
@@ -726,7 +707,6 @@
 
         // Fungsi untuk mengirim data update (action dan image action)
         function update() {
-            // var partNumber = $('#update_part_number_hidden').val();
             var reportID = $('#update_part_number_hidden').val(); 
             var picAction = $('#pic_action').val();
             var dueDate = $('#due_date').val();
@@ -738,7 +718,6 @@
             }
 
             var formData = new FormData();
-            // formData.append('partNumber', partNumber);
             formData.append('reportID', reportID);
             formData.append('picAction', picAction);
             formData.append('dueDate', dueDate);
@@ -834,15 +813,10 @@
 
         // Fungsi untuk menampilkan modal untuk change PIC
         function change_pic(reportID, currentPic) {
-            // Mengisi field Nama PIC saat ini di modal
             $('#oldPIC').val(currentPic);
-
-            // Menyimpan reportID ke input hidden untuk referensi saat menekan tombol save
             $('#hidden_part_number_for_pic_change').val(reportID);
 
             $('#newPIC').val(null).trigger('change');
-
-            // Tampilkan modal
             $("#modal_pic_change").modal('show');
         }
 
@@ -872,7 +846,6 @@
 
         // Fungsi untuk mengirim data perubahan PIC baru ke server
         function changePIC() {
-            // var partNumber = $('#hidden_part_number_for_pic_change').val();
             var reportID = $('#hidden_part_number_for_pic_change').val();
             var newPicSesaId = $('#newPIC').val();
             if (!newPicSesaId) {
@@ -894,7 +867,6 @@
                         type: "POST",
                         url: '@Url.Action("UpdatePIC", "SmartIQC")',
                         data: {
-                            // partNumber: partNumber,
                             reportID: reportID,
                             newPicSesaId: newPicSesaId
                         },
@@ -1018,10 +990,6 @@
                 });
             }
         }
-
-        // function downloadData() {
-        //     window.location.href = "ExportExcel?type=open";
-        // }
 
         // Function to sortir report id berdasarkan asc/desc 
         jQuery.extend(jQuery.fn.dataTableExt.oSort, {

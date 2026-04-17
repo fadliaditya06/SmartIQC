@@ -1,4 +1,4 @@
-﻿@using P1F_IQC.Models
+﻿@using Smart_IQC.Models
 @model List<CapabilityModel>
 
 @{
@@ -13,7 +13,6 @@
         --border-color: #e0e0e0;
     }
 
-    /* Kontainer Utama */
     .capability-card {
         border: none;
         border-radius: 15px;
@@ -21,7 +20,6 @@
         background: #fff;
     }
 
-    /* Tab Navigasi Modern */
     .capability-nav-wrapper {
         background-color: #f8f9fa;
         padding: 20px;
@@ -41,7 +39,7 @@
     .nav-item-capsule {
         padding: 8px 20px;
         border: 1px solid var(--border-color);
-        border-radius: 50px; /* Fully Rounded */
+        border-radius: 50px; 
         background-color: white;
         color: #555;
         font-weight: 500;
@@ -63,7 +61,6 @@
         box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
     }
 
-    /* Area Display Konten */
     .capability-display {
         margin: 40px auto;
         padding: 30px;
@@ -76,10 +73,9 @@
         border: 1px solid var(--border-color);
         border-radius: 20px;
         position: relative;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03); /* Soft Shadow */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
     }
 
-    /* Badge Judul di Tengah Border */
     #dynamicTitleContainer {
         position: absolute;
         top: -15px;
@@ -96,7 +92,6 @@
         letter-spacing: 0.5px;
     }
 
-    /* Image Display */
     #displayWrapper {
         width: 100%;
         height: 100%;
@@ -122,13 +117,13 @@
         filter: drop-shadow(0 5px 15px rgba(0,0,0,0.08));
     }
 
-    /* Animations */
+    
     .fade-loading {
         opacity: 0.3;
         transform: scale(0.98);
     }
 
-    /* Modal Styling */
+    
     .modal-content {
         border-radius: 20px;
         border: none;
@@ -189,7 +184,7 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
+    
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important;

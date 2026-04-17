@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace P1F_IQC.Function
+namespace Smart_IQC.Function
 {
     public static class TagHelper
     {

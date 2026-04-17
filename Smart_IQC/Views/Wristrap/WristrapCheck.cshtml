@@ -1,9 +1,173 @@
-﻿@using P1F_IQC.Function
+﻿@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     string sesa_id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
+
+<style>
+    .hero {
+        min-height: 70px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        margin-bottom: 0 !important;
+        z-index: 1;
+    }
+
+    .hero .position-absolute {
+        width: 100%;
+    }
+
+    .hero .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+    }
+
+    .hero .hero-body {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    .hero .hero-title {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .inner {
+        height: 70px;
+        position: relative;
+    }
+
+    .main-content-row {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .hero {
+        margin-bottom: 0 !important;
+    }
+
+    
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        border: none !important;
+        margin-bottom: 30px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card .card-body {
+        padding: 24px;
+    }
+
+    .mt-n4 {
+        margin-top: -45px !important;
+    }
+
+    .dashboard-card .card-body {
+        padding: 35px !important;
+    }
+
+    .px-md-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .container-fluid {
+        max-width: 98%;
+        margin: 0 auto;
+    }
+
+    .dashboard-card .card-body {
+        padding: 30px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .px-md-5 {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+
+    
+    :root {
+        --first-color: #E3F8FF;
+        --second-color: #DCFAFB;
+        --third-color: #FFE8DF;
+        --accent-color: #FF5151;
+        --dark-color: #161616;
+    }
+
+    
+    *, ::after, ::before {
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #fff;
+        color: var(--dark-color);
+    }
+
+
+    a {
+        text-decoration: none;
+    }
+
+    
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .container {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 12px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .select2-container {
+        width: 100% !important; 
+    }
+
+    .select2-container--default .select2-selection--single {
+        height: 40px !important; 
+        display: flex !important;
+        align-items: center !important;
+        justify-content: left !important;
+        border: 1px solid #ced4da; 
+        border-radius: 0.25rem; 
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px !important; 
+        padding-left: 10px; 
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px; 
+        right: 10px; 
+    }
+</style>
 
 <section id="hero" class="hero bg-dark position-relative" style="background: url('@Url.Content("~/images/background/background-iqc.jpg")') center center / cover no-repeat fixed;">
     <div class="inner d-flex justify-content-between align-items-center px-3 py-2 w-100">
@@ -142,7 +306,7 @@
                 </div>
                 <input type="hidden" id="edit_shift">
                 <input type="hidden" id="edit_date">
-                <input type="hidden" id="edit_id_daily"> <!-- Added hidden field for id_daily -->
+                <input type="hidden" id="edit_id_daily"> 
                 <div class="row w-100 mt-3 justify-content-center">
                     <div class="col-md-4 text-center">
                         <button class="btn btn-success btn-block" id="edit_SC" disabled>
@@ -204,170 +368,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .hero {
-        min-height: 70px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        color: #fff;
-        margin-bottom: 0 !important;
-        z-index: 1;
-    }
-
-    .hero .position-absolute {
-        width: 100%;
-    }
-
-    .hero .hero-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.65);
-    }
-
-    .hero .hero-body {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-    }
-
-    .hero .hero-title {
-        font-size: 28px;
-        font-weight: 700;
-        letter-spacing: 0.2px;
-    }
-
-    .inner {
-        height: 70px;
-        position: relative;
-    }
-
-    .main-content-row {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-
-    .hero {
-        margin-bottom: 0 !important;
-    }
-
-    /* Penyelarasan Kartu Dashboard */
-    .dashboard-card {
-        background: #ffffff;
-        border-radius: 15px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
-        border: none !important;
-        margin-bottom: 30px;
-        position: relative;
-        z-index: 10;
-    }
-
-    .dashboard-card:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .dashboard-card .card-body {
-        padding: 24px;
-    }
-
-    .mt-n4 {
-        margin-top: -45px !important;
-    }
-
-    .dashboard-card .card-body {
-        padding: 35px !important;
-    }
-
-    .px-md-5 {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
-    }
-
-    .container-fluid {
-        max-width: 98%;
-        margin: 0 auto;
-    }
-
-    .dashboard-card .card-body {
-        padding: 30px !important;
-    }
-
-    @@media (max-width: 768px) {
-        .px-md-5 {
-            padding-left: 0.75rem !important;
-            padding-right: 0.75rem !important;
-        }
-    }
-
-    /*Colores*/
-    :root {
-        --first-color: #E3F8FF;
-        --second-color: #DCFAFB;
-        --third-color: #FFE8DF;
-        --accent-color: #FF5151;
-        --dark-color: #161616;
-    }
-
-    /*-- Base --*/
-    *, ::after, ::before {
-        box-sizing: border-box;
-    }
-
-    body {
-        background-color: #fff;
-        color: var(--dark-color);
-    }
-
-
-    a {
-        text-decoration: none;
-    }
-
-    /*-- Layout --*/
-    .card {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .container {
-        display: block;
-        position: relative;
-        padding-left: 35px;
-        margin-bottom: 12px;
-        cursor: pointer;
-        font-size: 12px;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    .select2-container {
-        width: 100% !important; 
-    }
-
-    .select2-container--default .select2-selection--single {
-        height: 40px !important; 
-        display: flex !important;
-        align-items: center !important;
-        justify-content: left !important;
-        border: 1px solid #ced4da; 
-        border-radius: 0.25rem; 
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 38px !important; 
-        padding-left: 10px; 
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 38px; 
-        right: 10px; 
-    }
-</style>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

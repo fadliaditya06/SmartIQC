@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata;
-using P1F_IQC.Models; 
+using Smart_IQC.Models; 
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics; 
@@ -9,7 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Mail;
 
-namespace P1F_IQC.Function
+namespace Smart_IQC.Function
 {
     public class DatabaseAccessLayer
     {
@@ -39,10 +39,6 @@ namespace P1F_IQC.Function
                             row.apps_id = reader["apps_id"].ToString();
                             row.dept_id = reader["dept_id"].ToString();
                             row.role = reader["roles"].ToString();
-                            row.manager_sesa_id = reader["manager_sesa_id"].ToString();
-                            row.manager_name = reader["manager_name"].ToString();
-                            row.manager_email = reader["manager_email"].ToString();
-                            //row.apps_name = reader["apps_name"].ToString();
                             dataList.Add(row);
                         }
                     }
@@ -219,8 +215,6 @@ namespace P1F_IQC.Function
                             string display = $"{code} - {name}";
                             categories.Add(new CommodityModel
                             {
-                                //Commodity_ID = reader["id"]?.ToString(),
-                                //Commodity_ID = Convert.ToInt32(reader["id"]),
                                 Commodity = code,
                                 Commodity_Name = display
 
@@ -383,7 +377,6 @@ namespace P1F_IQC.Function
                         {
                             departments.Add(new DepartmentModel
                             {
-                                //id_dept = Convert.ToInt32(reader["id_dept"]),
                                 id_dept = reader["id_dept"]?.ToString(),
                                 dept_name = reader["dept_name"]?.ToString()
                             });

@@ -1,13 +1,13 @@
-﻿@using P1F_IQC.Function
+﻿@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http;
 @using System.Security.Claims;
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     string url = ViewContext.HttpContext.Request.Path;
     string lastSegment = url.Split('/').Last();
-    string level = User.FindFirst("p1f_iqc_level")?.Value;
-    string name = User.FindFirst("p1f_iqc_name")?.Value;
-    string role = User.FindFirst("p1f_iqc_role")?.Value;
+    string level = User.FindFirst("Smart_IQC_level")?.Value;
+    string name = User.FindFirst("Smart_IQC_name")?.Value;
+    string role = User.FindFirst("Smart_IQC_role")?.Value;
     string sesa_id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
@@ -322,7 +322,7 @@
     }
 
     .sidebar-mini.sidebar-collapse .main-sidebar:hover {
-        width: 250px !important; /* Lebar saat memanjang */
+        width: 250px !important; 
     }
 
     .sidebar-mini.sidebar-collapse .nav-sidebar .nav-link p,

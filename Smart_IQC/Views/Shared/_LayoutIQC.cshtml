@@ -1,13 +1,13 @@
-﻿@using P1F_IQC.Function
+﻿@using Smart_IQC.Function
 @using Microsoft.AspNetCore.Http;
 @using System.Security.Claims;
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     string url = ViewContext.HttpContext.Request.Path;
     string lastSegment = url.Split('/').Last();
-    string level = User.FindFirst("p1f_iqc_level")?.Value;
-    string name = User.FindFirst("p1f_iqc_name")?.Value;
-    string role = User.FindFirst("p1f_iqc_role")?.Value;
+    string level = User.FindFirst("Smart_IQC_level")?.Value;
+    string name = User.FindFirst("Smart_IQC_name")?.Value;
+    string role = User.FindFirst("Smart_IQC_role")?.Value;
     string sesa_id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
@@ -210,7 +210,6 @@
                                 Html.IsActive("Admin", "MasterSupplier") == "active" ||
                                 Html.IsActive("Admin", "MasterCategory") == "active" ||
                                 Html.IsActive("Admin", "MasterPartNumber") == "active";
-                                @*Html.IsActive("Admin", "MasterIssueCategory") == "active";*@
 
                                 <li class="nav-header">Master Data</li>
                                 <li class="nav-item has-treeview @(isMasterDataActive ? "menu-open" : "")">
@@ -386,9 +385,6 @@
         var sesaId = '@sesa_id';
         if (sesaId && sesaId !== '' && sesaId !== 'null' && sesaId !== 'undefined') {
             setTimeout(showSessionExpirationModal, 30 * 60 * 1000);
-
-            // (10 detik)
-            // setTimeout(showSessionExpirationModal, 10 * 1000); 
         }
 
         $(document).on('click', '#logout-link', function (event) {
@@ -439,7 +435,7 @@
     }
 
     .sidebar-mini.sidebar-collapse .main-sidebar:hover {
-        width: 250px !important; /* Lebar saat memanjang */
+        width: 250px !important; 
     }
 
     .brand-link .brand-image {

@@ -1,5 +1,5 @@
-﻿@using P1F_IQC.Models
-@model P1F_IQC.Models.ViewModel
+﻿@using Smart_IQC.Models
+@model Smart_IQC.Models.ViewModel
 @{
     ViewData["Title"] = "IQC Commodity Bar Chart";
 }
@@ -20,7 +20,7 @@
         cursor: text !important;
     }
 
-    /* Update Spinner Style agar support Ikon Font Awesome */
+    
     .loading-container {
         text-align: center;
         padding-top: 100px;
@@ -168,7 +168,7 @@
         margin-bottom: 0 !important;
     }
 
-    /* Penyelarasan Kartu Dashboard */
+    
     .dashboard-card {
         background: #ffffff;
         border-radius: 15px !important; 
@@ -480,7 +480,6 @@
         }
 
         $(document).ready(function() {
-            // Setup Default Range
             function getIsoWeekWithOffset(offsetWeeks = 0) {
                 var now = new Date();
                 now.setDate(now.getDate() - (offsetWeeks * 7));
@@ -496,7 +495,6 @@
             if (!$('#week-from').val()) $('#week-from').val(weekFromDefault);
             if (!$('#week-to').val()) $('#week-to').val(weekToDefault);
 
-            // Inisialisasi Tampilan Awal
             togglePeriodInputs('weekly');
             loadIqcChartData('weekly', $('#week-from').val(), $('#week-to').val());
 

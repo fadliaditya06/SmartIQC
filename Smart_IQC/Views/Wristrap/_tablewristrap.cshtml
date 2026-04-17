@@ -2,12 +2,12 @@
 @using Microsoft.AspNetCore.Http
 @using System.Data
 @using System.Text.RegularExpressions
-@using P1F_IQC.Function
+@using Smart_IQC.Function
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     var dataSet2 = ViewBag.DataSet2 as DataSet;
-    var loggedInUserName = User.FindFirst("p1f_iqc_name")?.Value;
+    var loggedInUserName = User.FindFirst("Smart_IQC_name")?.Value;
 
     // Create a dictionary to store the columns grouped by day of the week
     var dayColumns = new Dictionary<string, List<DataColumn>>();
@@ -32,6 +32,104 @@
     var filteredRows = dataSet2.Tables[0].AsEnumerable()
         .CopyToDataTable();
 }
+
+<style>
+    .not-clickable {
+        pointer-events: none;
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .dropdown-menu {
+        padding: 10px;
+    }
+
+    .dropdown-item {
+        margin-bottom: 10px;
+    }
+
+    .dropdown-toggle {
+        background-color: #337ab7;
+        border-color: #2e6da4;
+        color: #fff;
+    }
+
+    #tbl_history {
+        margin: 0 auto;
+    }
+
+    .btn-circle {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 6px;
+        font-size: 12px;
+        margin: 5px;
+    }
+
+    .btn-uniform {
+        width: 30px;
+        height: 30px;
+        padding: 4px;
+        font-size: 14px;
+        vertical-align: middle; 
+    }
+
+    .btn-uniform:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+
+    .select2-container {
+        width: 100% !important;
+        line-height: 100% !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 40px !important; 
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 30px !important; 
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        font-size: 17px !important;
+    }
+
+    .professional-table thead th {
+        background-color: var(--primary-blue) !important;
+        color: white !important;
+        text-align: center;
+        vertical-align: middle;
+        text-transform: uppercase;
+        font-size: 11px;
+        border-right: 1px solid white !important;
+        border-bottom: 1px solid white !important;
+    }
+
+    .professional-table thead th:first-child {
+        border-left: 1px solid white !important;
+    }
+
+    .professional-table td {
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .professional-table {
+        border-collapse: separate !important;
+        border-spacing: 0;
+    }
+
+    .modal {
+        z-index: 1060 !important;
+    }
+
+    .modal-backdrop {
+        z-index: 1050 !important;
+    }
+</style>
 
 <table id="tbl_wristrap" class="table professional-table table-bordered table-striped" style="width: 100%; max-width: 100%; overflow-x: auto;">
     <thead>
@@ -74,12 +172,10 @@
                                 };
 
                                 // Check if the current time is after the shift end time for today
-
                                 bool isShiftPassed = DateTime.Parse(date) < DateTime.Today ||
                                 (DateTime.Parse(date) == DateTime.Today && DateTime.Now.TimeOfDay > TimeSpan.Parse(shiftEndTime));
 
                                 // Check if the shift is currently active
-
                                 bool isShiftActive = DateTime.Parse(date) == DateTime.Today &&
                                 DateTime.Now.TimeOfDay >= TimeSpan.Parse(shiftStartTime) &&
                                 DateTime.Now.TimeOfDay <= TimeSpan.Parse(shiftEndTime);
@@ -364,101 +460,3 @@
         }
     });
 </script>
-
-<style>
-    .not-clickable {
-        pointer-events: none;
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    .dropdown-menu {
-        padding: 10px;
-    }
-
-    .dropdown-item {
-        margin-bottom: 10px;
-    }
-
-    .dropdown-toggle {
-        background-color: #337ab7;
-        border-color: #2e6da4;
-        color: #fff;
-    }
-
-    #tbl_history {
-        margin: 0 auto;
-    }
-
-    .btn-circle {
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        padding: 6px;
-        font-size: 12px;
-        margin: 5px;
-    }
-
-    .btn-uniform {
-        width: 30px;
-        height: 30px;
-        padding: 4px;
-        font-size: 14px;
-        vertical-align: middle; 
-    }
-
-    .btn-uniform:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-    }
-
-
-    .select2-container {
-        width: 100% !important;
-        line-height: 100% !important;
-    }
-
-    .select2-container .select2-selection--single {
-        height: 40px !important; 
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 30px !important; 
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        font-size: 17px !important;
-    }
-
-    .professional-table thead th {
-        background-color: var(--primary-blue) !important;
-        color: white !important;
-        text-align: center;
-        vertical-align: middle;
-        text-transform: uppercase;
-        font-size: 11px;
-        border-right: 1px solid white !important;
-        border-bottom: 1px solid white !important;
-    }
-
-    .professional-table thead th:first-child {
-        border-left: 1px solid white !important;
-    }
-
-    .professional-table td {
-        border: 1px solid #dee2e6 !important;
-    }
-
-    .professional-table {
-        border-collapse: separate !important;
-        border-spacing: 0;
-    }
-
-    .modal {
-        z-index: 1060 !important;
-    }
-
-    .modal-backdrop {
-        z-index: 1050 !important;
-    }
-</style>

@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
-using P1F_IQC.Function;
-using P1F_IQC.Service;
-using P1F_IQC.Function.Data;
+using Smart_IQC.Function;
+using Smart_IQC.Service;
+using Smart_IQC.Function.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +27,7 @@ options.UseSqlServer(
                     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<P1F_IQC.Function.DatabaseAccessLayer>();
+builder.Services.AddScoped<Smart_IQC.Function.DatabaseAccessLayer>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -46,7 +46,6 @@ builder.Services.AddAuthorization(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-//builder.Services.AddMvc();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -58,7 +57,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -67,7 +65,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication(); //new
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 

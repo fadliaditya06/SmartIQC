@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace P1F_IQC.Models
+namespace Smart_IQC.Models
 {
     public class ViewModel
     {
@@ -8,11 +8,5 @@ namespace P1F_IQC.Models
         public List<DepartmentModel> AllDepartments { get; set; }
         public List<PICModel> AllPICs { get; set; }
         public List<OpenPointsModel> OpenPointsDetails { get; set; }
-        //public ViewModel()
-        //{
-        //    CheckLayerDetails = new List<LayerCheckModel>();
-        //    AllDepartments = new List<DepartmentModel>();
-        //    AllPICs = new List<PICModel>(); 
-        //}
     }
 }
