@@ -566,7 +566,6 @@
                         }
                     ],
                         "initComplete": function (settings, json) {
-                            // Fungsi ini menambahkan input teks filter di bawah setiap header kolom dan menangani logika pencarian kolom secara real-time
                             $("#table_details").wrap("<div style='overflow:auto; width:100%;position:relative;'></div>");  
                         
                             var filterRow = $('<tr class="filter-row"></tr>');
@@ -615,7 +614,6 @@
                 complete: function () {
                     spinner_filter = $("#spinner_filter");  
 
-                    // Logika untuk mengembalikan state filter dari LocalStorage jika ada
                     if (localStorage.getItem('openPointsFilterState0')) {
                         spinner_filter.css("display", "block");
                         const filterStateAgain = JSON.parse(localStorage.getItem('openPointsFilterState0'));

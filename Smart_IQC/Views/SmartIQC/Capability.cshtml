@@ -306,7 +306,6 @@
             const logoPath = '@Url.Content("~/images/capability/")';
             const fallbackImg = '@Url.Content("~/images/not_available.png")';
 
-            // Event handler untuk klik capsule
             $('.nav-item-capsule').on('click', function () {
                 const $this = $(this);
                 const fileName = $this.data('target');
@@ -340,7 +339,6 @@
                 $('#imageCaption').text("Data Not Available");
             }
 
-            // Zoom Modal
             $('#displayWrapper').on('click', function() {
                 const currentSrc = $('#infoImage').attr('src');
                 const currentTitle = $('#imageCaption').text();

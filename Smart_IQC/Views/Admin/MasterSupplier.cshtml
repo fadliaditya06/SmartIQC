@@ -328,7 +328,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Inisialisasi awal saat halaman dimuat
+
             GetSupplierData();
 
             // Event Listener untuk Tombol Add Supplier 
@@ -403,7 +403,7 @@
             $("#modal_edit").modal('show');
         }
 
-        // Fungsi Simpan Perubahan Edit dipanggil dari onclick
+        // Fungsi Simpan Perubahan Edit 
         function verify_save() {
             var id_supplier = $('#e_id_supplier').val();
             var supplier_name = $('#modal_edit #supplier_name').val();
@@ -428,7 +428,7 @@
             });
         }
 
-        // Fungsi Delete Tunggal dipanggil dari onclick
+        // Fungsi Delete 
         function btn_delete(id) {
             Swal.fire({
                 title: 'Confirm Delete?',

@@ -5,9 +5,9 @@
 @{
     string url = ViewContext.HttpContext.Request.Path;
     string lastSegment = url.Split('/').Last();
-    string level = User.FindFirst("Smart_IQC_level")?.Value;
-    string name = User.FindFirst("Smart_IQC_name")?.Value;
-    string role = User.FindFirst("Smart_IQC_role")?.Value;
+    string level = User.FindFirst("smart_iqc_level")?.Value;
+    string name = User.FindFirst("smart_iqc_name")?.Value;
+    string role = User.FindFirst("smart_iqc_role")?.Value;
     string sesa_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 }
 
@@ -114,10 +114,10 @@
         <aside class="main-sidebar sidebar-dark-success elevation-5">
             <!-- Brand Logo -->
             <a href="#" class="brand-link text-center">
-                @*<img id="sidebar-brand-img"
-                     src="@Url.Content("~/assets/sewhite.svg")"
+                <img id="sidebar-brand-img"
+                     src="@Url.Content("~/assets/xyz_logo.svg")"
                      alt="Schneider Logo"
-                style="opacity: .8; transition: opacity 0.3s ease; max-height: 29px;">*@
+                style="opacity: .8; transition: opacity 0.3s ease; max-height: 45px;">
             </a>
             <div class="sidebar">
                 <nav class="mt-3">
@@ -209,8 +209,8 @@
              const $sidebar = $('.main-sidebar');
              const $img = $('#sidebar-brand-img');
 
-             // const imgOpen = '@Url.Content("~/assets/sewhite.svg")';
-             // const imgClosed = '@Url.Content("~/assets/icon_se.svg")';
+             const imgOpen = '@Url.Content("~/assets/icon_xyz.svg")';
+             const imgClosed = '@Url.Content("~/assets/xyz_logo.svg")';
 
              function updateSidebarLogo() {
                  if ($body.hasClass('sidebar-collapse')) {

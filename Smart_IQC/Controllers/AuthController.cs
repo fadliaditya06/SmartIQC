@@ -47,54 +47,50 @@ namespace Smart_IQC.Controllers
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             var dept_id = User.FindFirst("dept_id")?.Value;
             var manager_name = User.FindFirst("manager_sesa_id")?.Value;
-            //string updMsg = db.UpdateUser(sesa_id, full_name, email, manager_sesa_id, manager_name);
             List<UserDetailModel> userDetail = db.GetUserDetail(sesa_id);
 
             var claimsIdentity = (ClaimsIdentity)User.Identity;
 
-            var existName = claimsIdentity?.FindFirst("Smart_IQC_name");
+            var existName = claimsIdentity?.FindFirst("smart_iqc_name");
             if (existName != null)
             {
                 claimsIdentity.RemoveClaim(existName);
             }
-            var existLevel = claimsIdentity?.FindFirst("Smart_IQC_level");
+            var existLevel = claimsIdentity?.FindFirst("smart_iqc_level");
             if (existLevel != null)
             {
                 claimsIdentity.RemoveClaim(existLevel);
             }
-            var existRole = claimsIdentity?.FindFirst("Smart_IQC_role");
+            var existRole = claimsIdentity?.FindFirst("smart_iqc_role");
             if (existRole != null)
             {
                 claimsIdentity.RemoveClaim(existRole);
             }
-            var existApps = claimsIdentity?.FindFirst("Smart_IQC_apps");
+            var existApps = claimsIdentity?.FindFirst("smart_iqc_apps");
             if (existApps != null)
             {
                 claimsIdentity.RemoveClaim(existApps);
             }
 
-            claimsIdentity.AddClaim(new Claim("Smart_IQC_name", full_name));
-            //string userRole = "TEST";
+            claimsIdentity.AddClaim(new Claim("smart_iqc_name", full_name));
 
-            // Check if role retrieval was successful
             if (userDetail.Any())
             {
                 var user = userDetail.First();
                 if (!string.IsNullOrEmpty(user.level))
                 {
-                    // Create a new claim for the user role
-                    claimsIdentity.AddClaim(new Claim("Smart_IQC_level", user.level));
-                    claimsIdentity.AddClaim(new Claim("Smart_IQC_role", user.role));
-                    claimsIdentity.AddClaim(new Claim("Smart_IQC_apps", user.apps_id));
+                    claimsIdentity.AddClaim(new Claim("smart_iqc_level", user.level));
+                    claimsIdentity.AddClaim(new Claim("smart_iqc_role", user.role));
+                    claimsIdentity.AddClaim(new Claim("smart_iqc_apps", user.apps_id));
                 }
                 else
                 {
-                    claimsIdentity.AddClaim(new Claim("Smart_IQC_level", "no_access"));
+                    claimsIdentity.AddClaim(new Claim("smart_iqc_level", "no_access"));
                 }
             }
             else
             {
-                claimsIdentity.AddClaim(new Claim("Smart_IQC_level", "no_access"));
+                claimsIdentity.AddClaim(new Claim("smart_iqc_level", "no_access"));
             }
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
@@ -159,7 +155,7 @@ namespace Smart_IQC.Controllers
         public async Task<IActionResult> CheckClaim()
         {
             string sesa_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            string name = User.FindFirst("Smart_IQC_name")?.Value;
+            string name = User.FindFirst("smart_iqc_name")?.Value;
             return Ok(sesa_id + " - " + name);
         }
         [Authorize]

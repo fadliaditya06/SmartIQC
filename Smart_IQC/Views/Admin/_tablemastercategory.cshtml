@@ -2,45 +2,10 @@
 @using Microsoft.AspNetCore.Http;
 @using Smart_IQC.Function
 
-<table id="tbl_category" class="table professional-table table-sm table-hover" style="width: 100%; border: 1px solid #dee2e6;">
-    <thead>
-        <tr style="font-size: 13px; letter-spacing: 0.5px; background-color: #3dcd58; color: white;">
-            <th class="text-center align-middle border-left" style="width: 10%;">No</th>
-            <th class="text-center align-middle border-left" style="width: 20%; padding-left: 15px;">Category ID</th>
-            <th class="text-center align-middle border-left">Category Name</th>
-            <th class="text-center align-middle border-left" width="10%">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr style="font-size: 13px;">
-                <td class="text-center border-left index-column"></td>
-                <td class="border-left font-weight-bold" style="text-align: center !important;">@item.Commodity</td>
-                <td class="text-center border-left text-dark">@item.Commodity_Name</td>
-                <td class="text-center border-left">
-                    <div class="d-flex justify-content-center">
-                        <button class="btn btn-edit mr-1" title="Edit"
-                                onclick="btn_edit('@item.Commodity','@item.Commodity_Name')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-
-                        <button class="btn btn-delete" title="Delete"
-                                onclick="btn_delete('@item.Commodity')">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                </td>
-                <td style="display:none;">@item.Commodity</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
 <style>
     #tbl_category {
         background-color: white;
-        border-collapse: collapse !important; 
+        border-collapse: collapse !important;
     }
 
     .btn-edit {
@@ -108,8 +73,17 @@
         font-weight: 700;
         display: inline-block;
     }
-    .badge-admin { background-color: #e3f2fd; color: #0d47a1; }
-    .badge-inspector { background-color: #FFD700; color: #424242; border: 1px solid #FFEA00; }
+
+    .badge-admin {
+        background-color: #e3f2fd;
+        color: #0d47a1;
+    }
+
+    .badge-inspector {
+        background-color: #FFD700;
+        color: #424242;
+        border: 1px solid #FFEA00;
+    }
 
     .btn-action-minimal {
         background: transparent;
@@ -119,10 +93,12 @@
         border-radius: 4px;
         cursor: pointer;
     }
-    .btn-action-minimal:hover { 
-        background-color: #e9ecef; 
-        color: #3dcd58; 
+
+    .btn-action-minimal:hover {
+        background-color: #e9ecef;
+        color: #3dcd58;
     }
+
     .btn-action-minimal:focus {
         outline: none;
         box-shadow: none;
@@ -133,18 +109,53 @@
         font-size: 14px;
         margin-top: 0;
         border-radius: 8px;
-        padding: 5px; 
+        padding: 5px;
     }
 
     .dropdown-item.hover-edit:hover {
-        background-color: #FFF9C4 !important; 
+        background-color: #FFF9C4 !important;
         color: #333;
         border-radius: 4px;
     }
 
     .dropdown-item.hover-delete:hover {
-        background-color: #FFEBEE !important; 
+        background-color: #FFEBEE !important;
         color: #d32f2f !important;
         border-radius: 4px;
     }
 </style>
+
+<table id="tbl_category" class="table professional-table table-sm table-hover" style="width: 100%; border: 1px solid #dee2e6;">
+    <thead>
+        <tr style="font-size: 13px; letter-spacing: 0.5px; background-color: #3dcd58; color: white;">
+            <th class="text-center align-middle border-left" style="width: 10%;">No</th>
+            <th class="text-center align-middle border-left" style="width: 20%; padding-left: 15px;">Category ID</th>
+            <th class="text-center align-middle border-left">Category Name</th>
+            <th class="text-center align-middle border-left" width="10%">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr style="font-size: 13px;">
+                <td class="text-center border-left index-column"></td>
+                <td class="border-left font-weight-bold" style="text-align: center !important;">@item.Commodity</td>
+                <td class="text-center border-left text-dark">@item.Commodity_Name</td>
+                <td class="text-center border-left">
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-edit mr-1" title="Edit"
+                                onclick="btn_edit('@item.Commodity','@item.Commodity_Name')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+
+                        <button class="btn btn-delete" title="Delete"
+                                onclick="btn_delete('@item.Commodity')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+                <td style="display:none;">@item.Commodity</td>
+            </tr>
+        }
+    </tbody>
+</table>

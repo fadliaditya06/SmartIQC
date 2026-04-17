@@ -4,8 +4,8 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutDash.cshtml";
-    var level = User.FindFirst("Smart_IQC_level")?.Value;
-    var userApps = User.FindFirst("Smart_IQC_apps")?.Value ?? "";
+    var level = User.FindFirst("smart_iqc_level")?.Value;
+    var userApps = User.FindFirst("smart_iqc_apps")?.Value ?? "";
 
     bool hasIQC = userApps.Contains("APP-IQC");
     bool hasTH = userApps.Contains("APP-TH");
@@ -266,7 +266,7 @@
                             <div class="card-body py-5 text-center d-flex flex-column align-items-center">
                                 <img src="~/images/logo/tracking.png" class="mb-4 icon-display" style="width: 100px; height: 100px; object-fit: contain;">
                                 <h3 class="text-dark">Smart IQC</h3>
-                                <p class="text-muted mb-0">Inspection quality control system</p>
+                                <p class="text-muted mb-0">Incoming quality control system</p>
                                 @if (!hasIQC)
                                 {
                                     <span class="badge badge-secondary mt-2">Locked</span>
@@ -330,7 +330,7 @@
                     gsap.to("#typing-solutions", { duration: 1.5, text: "IQC Solutions", ease: "none" });
                 }
 
-                const fullText = "Smart IQC (Inspection Quality Control) Apps is a digital transformation solution for IQC, facilitating efficient and transparent communication. It ensures that all vital information is recorded digitally and remains accessible online at any time, promoting a seamless and automated data environment.";
+                const fullText = "Smart IQC (Incoming Quality Control) Apps is a digital transformation solution for IQC, facilitating efficient and transparent communication. It ensures that all vital information is recorded digitally and remains accessible online at any time, promoting a seamless and automated data environment.";
 
                 if ($("#typing-text").length) {
                     let tl = gsap.timeline({ repeat: -1 });
@@ -390,5 +390,4 @@
             });
         </script>
     }
-
 </div>

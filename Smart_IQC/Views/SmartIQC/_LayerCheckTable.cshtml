@@ -1,75 +1,5 @@
 ﻿@model ViewModel
 
-<table id="table_layer_check" class="table professional-table table-sm" style="table-layout:fixed">
-    <thead>
-        <tr class="bg-info">
-            <th class="align-middle text-center" width="5%"><i class="fas fa-list-ol"></i> No</th>
-            <th class="align-middle text-center" width="10%"><i class="fas fa-tag"></i> Unique Reff</th>
-            <th class="align-middle text-center" width="13%"><i class="fas fa-map-marker-alt"></i> Location</th>
-            <th class="align-middle text-center" width="25%"><i class="fas fa-exclamation-triangle"></i> Defect Description</th>
-            <th class="align-middle text-center" width="30%"><i class="fas fa-clipboard-check"></i> Inspection Step</th>
-            <th class="align-middle text-center" width="15%"><i class="fas fa-user-check"></i> Check</th>
-            <th class="align-middle text-center" width="10%"><i class="fas fa-poll-h"></i> Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.CheckLayerDetails != null && Model.CheckLayerDetails.Any())
-        {
-            int i = 0; 
-            foreach (var item in Model.CheckLayerDetails)
-            {
-                i++; 
-                    <tr data-unique-reff="@item.Unique_Reff">
-                        <td class="align-middle text-center" style="font-size:9pt;">@i</td>
-                        <td class="align-middle text-center" style="font-size:9pt;"><b>@item.Unique_Reff</b></td>
-
-                    <td class="align-middle text-left" style="font-size:9pt;">
-                        <div class="d-flex align-items-start">
-                            <a href="#" class="mr-2 pt-1">
-                                <span class="fa fa-info-circle text-warning" data-toggle="tooltip" title="@item.Location"></span>
-                            </a>
-                            <span>@item.Location</span>
-                        </div>
-                    </td>
-
-                    <td class="align-middle text-left" style="font-size:9pt;">
-                        <div class="d-flex align-items-start">
-                            <a href="#" class="mr-2 pt-1">
-                                <span class="fa fa-info-circle text-warning" data-toggle="tooltip" title="@item.Defect_Description"></span>
-                            </a>
-                            <span>@item.Defect_Description</span>
-                        </div>
-                    </td>
-
-                    <td class="align-middle text-left" style="font-size:9pt;">
-                        <a href="#"><span class="fa fa-info-circle text-warning" data-toggle="tooltip" data-original-title="@item.Inspection_Step"></span></a>
-                        @item.Inspection_Step
-                    </td>
-
-                    <td class="align-middle text-center">
-                        <button type="button" class="btn btn-sm btn-success btn-status mx-1" data-status="OK" style="width: 27pt">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger btn-status mx-1" data-status="NOK" style="width: 27pt">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </td>
-
-                    <td class="align-middle text-center">
-                        <span style="font-size:1rem;" class="badge badge-pill badge-info"><i class="fas fa-question"></i></span>
-                    </td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr class="text-center">
-                <td colspan="7" class="align-middle">No Data to Display</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
 <style>
     .professional-table {
         table-layout: fixed;
@@ -143,3 +73,73 @@
         line-height: 1.2;
     }
 </style>
+
+<table id="table_layer_check" class="table professional-table table-sm" style="table-layout:fixed">
+    <thead>
+        <tr class="bg-info">
+            <th class="align-middle text-center" width="5%"><i class="fas fa-list-ol"></i> No</th>
+            <th class="align-middle text-center" width="10%"><i class="fas fa-tag"></i> Unique Reff</th>
+            <th class="align-middle text-center" width="13%"><i class="fas fa-map-marker-alt"></i> Location</th>
+            <th class="align-middle text-center" width="25%"><i class="fas fa-exclamation-triangle"></i> Defect Description</th>
+            <th class="align-middle text-center" width="30%"><i class="fas fa-clipboard-check"></i> Inspection Step</th>
+            <th class="align-middle text-center" width="15%"><i class="fas fa-user-check"></i> Check</th>
+            <th class="align-middle text-center" width="10%"><i class="fas fa-poll-h"></i> Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.CheckLayerDetails != null && Model.CheckLayerDetails.Any())
+        {
+            int i = 0; 
+            foreach (var item in Model.CheckLayerDetails)
+            {
+                i++; 
+                    <tr data-unique-reff="@item.Unique_Reff">
+                        <td class="align-middle text-center" style="font-size:9pt;">@i</td>
+                        <td class="align-middle text-center" style="font-size:9pt;"><b>@item.Unique_Reff</b></td>
+
+                    <td class="align-middle text-left" style="font-size:9pt;">
+                        <div class="d-flex align-items-start">
+                            <a href="#" class="mr-2 pt-1">
+                                <span class="fa fa-info-circle text-warning" data-toggle="tooltip" title="@item.Location"></span>
+                            </a>
+                            <span>@item.Location</span>
+                        </div>
+                    </td>
+
+                    <td class="align-middle text-left" style="font-size:9pt;">
+                        <div class="d-flex align-items-start">
+                            <a href="#" class="mr-2 pt-1">
+                                <span class="fa fa-info-circle text-warning" data-toggle="tooltip" title="@item.Defect_Description"></span>
+                            </a>
+                            <span>@item.Defect_Description</span>
+                        </div>
+                    </td>
+
+                    <td class="align-middle text-left" style="font-size:9pt;">
+                        <a href="#"><span class="fa fa-info-circle text-warning" data-toggle="tooltip" data-original-title="@item.Inspection_Step"></span></a>
+                        @item.Inspection_Step
+                    </td>
+
+                    <td class="align-middle text-center">
+                        <button type="button" class="btn btn-sm btn-success btn-status mx-1" data-status="OK" style="width: 27pt">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger btn-status mx-1" data-status="NOK" style="width: 27pt">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+
+                    <td class="align-middle text-center">
+                        <span style="font-size:1rem;" class="badge badge-pill badge-info"><i class="fas fa-question"></i></span>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr class="text-center">
+                <td colspan="7" class="align-middle">No Data to Display</td>
+            </tr>
+        }
+    </tbody>
+</table>

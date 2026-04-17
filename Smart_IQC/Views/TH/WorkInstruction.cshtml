@@ -192,7 +192,7 @@
                                     <img src="~/images/logo/manual-book.png" alt="Manual Book" class="wi-book" />
                                     <h5 class="wi-title">View WI Temperature & Humidity</h5>
                                 </div>
-                                @if (User.HasClaim("Smart_IQC_level", "admin"))
+                                @if (User.HasClaim("smart_iqc_level", "admin"))
                                 {
                                     <button class="btn btn-info btn-block wi-button mt-4" id="upload-button-trigger"><i class="fas fa-upload mr-2"></i>Upload New WI</button>
                                 }

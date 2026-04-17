@@ -193,7 +193,6 @@ namespace Smart_IQC.Controllers
         public IActionResult WorkInstruction()
         {
             var db = new DatabaseAccessLayer();
-            //var allWorkInstructions = db.GetWorkInstructions();
             var allWorkInstructions = db.GetWorkInstructions().Where(x => x.wi_type == "Wriststrap").ToList();
             return View(allWorkInstructions);
         }

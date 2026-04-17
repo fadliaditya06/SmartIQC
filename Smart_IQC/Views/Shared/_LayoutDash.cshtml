@@ -2,14 +2,14 @@
 @using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
 @{
-    string level = User.FindFirst("Smart_IQC_level")?.Value;
-    string name = User.FindFirst("Smart_IQC_name")?.Value;
+    string level = User.FindFirst("smart_iqc_level")?.Value;
+    string name = User.FindFirst("smart_iqc_name")?.Value;
     string sesa_id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-    string role = User.FindFirst("Smart_IQC_role")?.Value;
+    string role = User.FindFirst("smart_iqc_role")?.Value;
     bool admin = !string.IsNullOrEmpty(level) && level.Contains("admin");
     bool inspector = !string.IsNullOrEmpty(level) && level.Contains("inspector");
 
-    var userApps = User.FindFirst("Smart_IQC_apps")?.Value ?? "";
+    var userApps = User.FindFirst("smart_iqc_apps")?.Value ?? "";
     bool hasIQC = userApps.Contains("APP-IQC");
     bool hasTH = userApps.Contains("APP-TH");
     bool hasWrist = userApps.Contains("APP-WRI");

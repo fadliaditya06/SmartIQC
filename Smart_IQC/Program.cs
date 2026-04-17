@@ -44,7 +44,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireInspector", policy => policy.RequireAuthenticatedUser());
 });
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
@@ -53,7 +52,6 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -72,13 +70,10 @@ app.UseSession();
 
 app.Use(async (context, next) =>
 {
-    // Call the next middleware in the pipeline
     await next();
 
-    // If the response status is 403 Forbidden
     if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
     {
-        // Redirect to the Access Denied page
         context.Response.Redirect("/");
     }
 });

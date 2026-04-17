@@ -285,7 +285,6 @@ namespace Smart_IQC.Controllers
         {
             try
             {
-                //bool success = _dal.UpdatePIC(partNumber, newPicSesaId);
                 bool success = _dal.UpdatePIC(reportID, newPicSesaId);
 
                 if (success)
@@ -314,7 +313,6 @@ namespace Smart_IQC.Controllers
                     var fileExtension = Path.GetExtension(imageFile.FileName);
                     var timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
-                    // Nama file default untuk file_action_image
                     var fileName = $"image_action_{timeStamp}{fileExtension}";
 
                     var directoryName = "wwwroot/uploads/actions";

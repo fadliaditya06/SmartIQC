@@ -248,11 +248,6 @@
                                 <button id="btn_reset" class="btn btn-sm btn-warning" onclick="window.location.reload()">
                                     <i class="fa fa-history mr-1"></i> Refresh Data
                                 </button>
-
-                                @*  <a class="btn btn-success btn-sm" href="@Url.Action("DownloadUserManagement", "Admin")">
-                                <i class="fa fa-download"></i> Download Data
-                                </a>
-                                <button class="btn btn-sm btn-danger btn-sm" id="delete_select"><i class="fas fa-trash"></i> Delete Selected Data</button> *@
                             </div>
 
                             <div class="row align-items-end">
@@ -557,7 +552,7 @@
         // Fungsi untuk pencarian department di dalam modal add user
         $('#select_departement').select2({
             placeholder: 'Select Departement Name',
-            width: '100%', // Set the width to 100%
+            width: '100%', 
             ajax: {
                 url: "@Url.Action("GetDeptName", "Admin")", 
                 data: function (params) {
@@ -627,14 +622,6 @@
                 },
             }
         });
-
-        // Fitur Check All
-        // function toggle(source) {
-        //     checkboxes = document.getElementsByName('foo');
-        //     for (var i = 0, n = checkboxes.length; i < n; i++) {
-        //         checkboxes[i].checked = source.checked;
-        //     }
-        // }
 
         // Fungsi untuk mengambil seluruh data user dari database
         function GetUserData() {
@@ -729,7 +716,6 @@
             var accessArray = $('#access').val(); 
             var accessString = accessArray ? accessArray.join(';') : "";
 
-            // Gather values from the input fields
             var sesa_id = $('#sesa_id').val();
             var name = $('#name').val();
             var email = $('#email').val();
@@ -739,7 +725,6 @@
             var apps_id = $('#apps_id').val();
             var roles = $('#roles').val();
 
-            // Client-side validation
             if (sesa_id === '' || name === '' || email === '' || password === '' ||
                 department === '' || level === '' || accessString === '' || roles === '') {
 
@@ -751,7 +736,6 @@
                 return; 
             }
 
-            // Confirmation dialog
             Swal.fire({
                 title: "Are you sure?",
                 text: 'Add Master Data?',
@@ -764,7 +748,6 @@
                 showLoaderOnConfirm: true,
                 preConfirm: function () {
                     return new Promise(function (resolve, reject) {
-                        // AJAX request to add master data
                         $.ajax({
                             type: "POST",
                             async: true,
@@ -940,7 +923,7 @@
                                     })
                                     setTimeout(function () {
                                         window.location.href = '@Url.Action("UserManagement", "Admin")';
-                                    }, 1000); // delay 1 detik sebelum reload halaman
+                                    }, 1000); 
                                 }
                             });
 
@@ -951,60 +934,5 @@
 
             }
         }
-
-        // Fungsi untuk mengumpulkan id dari user yang dicentang di tabel dan menghapusnya
-        // $("#delete_select").click(function () {
-        //     var selectedIDs = new Array();
-        //     $('input:checkbox.select_item').each(function () {
-        //         if ($(this).prop('checked')) {
-        //             selectedIDs.push({ id_user: $(this).val() });
-        //         }
-        //     });
-        //     console.log(selectedIDs) 
-
-        //     if (selectedIDs.length === 0) {
-        //         Swal.fire({
-        //             icon: 'error',
-        //             title: 'Error',
-        //             text: 'Please Fill in All the requirement first !'
-        //         })
-
-        //     } else {
-        //         Swal.fire({
-        //             title: 'Delete ?',
-        //             text: "Are you sure to Delete this Part Master Data ? ",
-        //             icon: 'warning',
-        //             showCancelButton: true,
-        //             confirmButtonColor: '#28a745',
-        //             cancelButtonColor: '#dc3545',
-        //             confirmButtonText: 'Yes!',
-        //             cancelButtonText: 'No!',
-        //             showLoaderOnConfirm: true,
-        //             preConfirm: function () {
-        //                 $.ajax({
-        //                     type: "POST",
-        //                     url: "@Url.Action("DeleteSelectData", "Admin")",
-        //                     data: JSON.stringify(selectedIDs),
-        //                     dataType: "json",
-        //                     contentType: "application/json",
-        //                     success: function () {
-        //                         Swal.fire({
-        //                             icon: 'success',
-        //                             title: 'Success',
-        //                             text: 'Delete Successfully !'
-        //                         })
-        //                         setTimeout(function () {
-        //                             location.reload();
-        //                         }, 1000);
-        //                     },
-        //                     complete: function () {
-        //                         $('#spinner_loading').hide();
-        //                     }
-        //                 });
-        //             }
-        //         })
-        //     }
-        // });
-
     </script>
 }

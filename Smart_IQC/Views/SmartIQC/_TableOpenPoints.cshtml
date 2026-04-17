@@ -85,7 +85,6 @@
                         }
                         else
                         {
-                            // Tombol Update (Hanya untuk PIC)
                             if (isOpen)
                             {
                                 <button class="btn btn-success btn-sm" title="Update Action"
@@ -94,7 +93,6 @@
                                 </button>
                             }
 
-                            // Tombol Verify untuk role SQE
                             else if (isWaitingVerification)
                             {
                                 string tooltipText = !isSQE ? "Access Denied: SQE Only" : "Verify Action";
@@ -108,7 +106,6 @@
                                 </span>
                             }
 
-                            // Tombol Change PIC
                             <button type="button" class="btn btn-sm btn-warning" title="Change PIC"
                                     onclick="change_pic('@item.Report_ID', '@item.PIC_Name')"
                                     @(!isCurrentUserThePic || !isOpen ? "disabled" : "")>

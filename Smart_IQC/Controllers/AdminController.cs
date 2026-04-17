@@ -18,7 +18,7 @@ namespace Smart_IQC.Controllers
         // Fungsi untuk mengambil hak akses level user
         private string GetUserLevel()
         {
-            return User.FindFirst("Smart_IQC_level")?.Value?.ToLower();
+            return User.FindFirst("smart_iqc_level")?.Value?.ToLower();
         }
 
         private string DbConnection()
@@ -112,119 +112,6 @@ namespace Smart_IQC.Controllers
             return Json(new { items = data });
         }
 
-        // Fungsi ini untuk mengunduh seluruh data user ke dalam format file Excel
-        //public IActionResult DownloadUserManagement()
-        //{
-        //    using (XLWorkbook wb = new XLWorkbook())
-        //    {
-        //        var ws = wb.Worksheets.Add("User Data");
-        //        DateTime currentDateTime = DateTime.Now;
-        //        string formattedDateTime = currentDateTime.ToString("yyyyMMdd_HHmmss");
-
-        //        ws.Cell(1, 1).Value = "No";
-        //        ws.Cell(1, 2).Value = "SESA ID";
-        //        ws.Cell(1, 3).Value = "Name";
-        //        ws.Cell(1, 4).Value = "Email";
-        //        ws.Cell(1, 5).Value = "Department";
-        //        ws.Cell(1, 6).Value = "Level";
-        //        ws.Cell(1, 7).Value = "Role";
-        //        ws.Cell(1, 8).Value = "Access";
-
-        //        // Style Header 
-        //        var headerRange = ws.Range(1, 1, 1, 8);
-        //        headerRange.Style.Font.Bold = true;
-        //        headerRange.Style.Fill.BackgroundColor = XLColor.LightGreen;
-
-        //        headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-        //        headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-        //        DataSet ds = GetUserManagementDownload();
-        //        DataTable dt = ds.Tables[0];
-
-        //        for (int i = 0; i < dt.Rows.Count; i++)
-        //        {
-        //            ws.Cell(i + 2, 1).Value = i + 1;
-        //            ws.Cell(i + 2, 2).Value = dt.Rows[i]["sesa_id"].ToString();
-        //            ws.Cell(i + 2, 3).Value = dt.Rows[i]["name"].ToString();
-        //            ws.Cell(i + 2, 4).Value = dt.Rows[i]["email"].ToString();
-        //            ws.Cell(i + 2, 5).Value = dt.Rows[i]["dept_id"].ToString();
-        //            ws.Cell(i + 2, 6).Value = dt.Rows[i]["level"].ToString();
-        //            ws.Cell(i + 2, 7).Value = dt.Rows[i]["roles"].ToString();
-        //            ws.Cell(i + 2, 8).Value = dt.Rows[i]["apps_id"].ToString();
-        //        }
-
-        //        ws.Columns().AdjustToContents(); 
-
-        //        using (MemoryStream stream = new MemoryStream())
-        //        {
-        //            wb.SaveAs(stream);
-        //            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "User_Management_" + formattedDateTime + ".xlsx");
-        //        }
-        //    }
-        //}
-
-        //private DataSet GetUserManagementDownload()
-        //{
-        //    DataSet ds = new DataSet();
-
-        //    using (SqlConnection conn = new SqlConnection(DbConnection()))
-        //    {
-        //        string query = @"
-        //    SELECT * from mst_users";
-
-        //        using (SqlCommand cmd = new SqlCommand(query))
-        //        {
-        //            cmd.Connection = conn;
-        //            using (SqlDataAdapter sda = new SqlDataAdapter(cmd))
-        //            {
-        //                sda.Fill(ds);
-        //            }
-        //        }
-        //    }
-
-        //    return ds;
-        //}
-
-        // Fungsi ini untuk menghapus banyak data user sekaligus
-        //[HttpPost]
-        //[Route("DeleteSelectData")]
-        //public IActionResult DeleteSelectData([FromBody] UserManagementModel[] input)
-        //{
-        //    string level = GetUserLevel();
-        //    if (level == "inspector" || level == "admin")
-        //    {
-        //        int totalDeleted = 0;
-
-        //        using (SqlConnection conn = new SqlConnection(DbConnection()))
-        //        {
-        //            conn.Open();
-        //            string query = "DELETE FROM mst_users WHERE id_user = @id_user";
-
-        //            foreach (var item in input)
-        //            {
-        //                using (SqlCommand cmd = new SqlCommand(query, conn))
-        //                {
-        //                    cmd.Parameters.Add(new SqlParameter("@id_user", item.id_user));
-        //                    try
-        //                    {
-        //                        totalDeleted += cmd.ExecuteNonQuery();
-        //                    }
-        //                    catch (Exception ex)
-        //                    {
-        //                        Console.Error.WriteLine(ex.Message);
-        //                    }
-        //                }
-        //            }
-        //        }
-
-        //        return Json(totalDeleted); 
-        //    }
-        //    else
-        //    {
-        //        return RedirectToAction("Logout", "Home");
-        //    }
-        //}
-
         // Fungsi untuk menambah data department
         [HttpPost]
         public IActionResult AddDepartment(string id_dept, string dept_name)
@@ -316,7 +203,6 @@ namespace Smart_IQC.Controllers
                     {
                         con.Open();
 
-                        // Ambil password lama dari database terlebih dahulu
                         string existingPassword = "";
                         string getPassQuery = "SELECT password FROM mst_users WHERE sesa_id = @sesa_id";
                         using (SqlCommand cmdGet = new SqlCommand(getPassQuery, con))
@@ -325,7 +211,6 @@ namespace Smart_IQC.Controllers
                             existingPassword = cmdGet.ExecuteScalar()?.ToString();
                         }
 
-                        // Tentukan password yang akan disimpan
                         string passwordToSave;
                         if (string.IsNullOrEmpty(password))
                         {
@@ -413,7 +298,6 @@ namespace Smart_IQC.Controllers
                         {
                             cmd.CommandType = CommandType.StoredProcedure;
 
-                            // Map the parameters
                             cmd.Parameters.AddWithValue("@sesa_id", sesa_id);
                             cmd.Parameters.AddWithValue("@name", name);
                             cmd.Parameters.AddWithValue("@email", email);
@@ -430,7 +314,6 @@ namespace Smart_IQC.Controllers
 
                             int result = (int)returnParam.Value;
 
-                            // Interpret the result
                             if (result == 1)
                             {
                                 return Json(new { success = true, message = "Data added successfully." });

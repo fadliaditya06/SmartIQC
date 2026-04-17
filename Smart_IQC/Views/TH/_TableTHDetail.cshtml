@@ -8,8 +8,8 @@
 @{
     string loc = ViewBag.loc;
     string audit_status = ViewBag.audit_status;
-    string role = User.FindFirst("Smart_IQC_role")?.Value;
-    string level = User.FindFirst("Smart_IQC_level")?.Value;
+    string role = User.FindFirst("smart_iqc_role")?.Value;
+    string level = User.FindFirst("smart_iqc_level")?.Value;
 }
 
 <style>
@@ -67,7 +67,6 @@
                                 @if (string.IsNullOrEmpty(row.remark))
                                 {
                                     if (role?.ToLower() == "metrology")
-                                    @*if (level?.ToLower() == "inspector" || level?.ToLower() == "admin")*@
                                     {
                                         <button class="btn btn-sm btn-uniform btn-warning"
                                                 onclick="insert_remark('@row.id', '@loc','@row.insp_date')">
