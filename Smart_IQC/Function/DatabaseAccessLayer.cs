@@ -631,6 +631,10 @@ namespace Smart_IQC.Function
         // Fungsi untuk mengirimkan notifikasi email kepada PIC jika ada hasil inspeksi yang NOK (open points)
         private void SendNotificationEmail(string toEmail, string toName, string category, string partNumber, string reportID, string uniqueReff, string comment, string supplierName, string ccEmail)
         {
+            string smtpEmail = "YOUR_EMAIL@gmail.com";
+            string smtpToken = "YOUR_APP_PASSWORD";
+            string senderDisplayName = "Smart IQC System";
+
             try
             {
                 string subject = "";
@@ -664,44 +668,42 @@ namespace Smart_IQC.Function
 
                 if (string.IsNullOrEmpty(bodyHtml)) return;
 
-                MailMessage mail = new MailMessage();
-                string myOutlookEmail = "fadliadtyas10@gmail.com";
-                string myAppPassword = "mucrpripdhcnmseu";
-                mail.From = new MailAddress(myOutlookEmail, "Smart IQC System");
-                mail.To.Add(new MailAddress(toEmail, toName));
-
-                if (!string.IsNullOrEmpty(ccEmail))
+                using (MailMessage mail = new MailMessage())
                 {
-                    mail.CC.Add(ccEmail.Trim());
+                    mail.From = new MailAddress(smtpEmail, senderDisplayName);
+                    mail.To.Add(new MailAddress(toEmail, toName));
+
+                    if (!string.IsNullOrEmpty(ccEmail))
+                    {
+                        mail.CC.Add(ccEmail.Trim());
+                    }
+
+                    List<string> bccEmails = GetMailBCC();
+                    foreach (string bcc in bccEmails)
+                    {
+                        if (!string.IsNullOrWhiteSpace(bcc)) mail.Bcc.Add(bcc.Trim());
+                    }
+
+                    mail.Subject = subject;
+                    mail.Body = bodyHtml;
+                    mail.IsBodyHtml = true;
+
+                    using (System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient("smtp.gmail.com", 587))
+                    {
+                        client.EnableSsl = true;
+                        client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                        client.UseDefaultCredentials = false;
+                        client.Credentials = new System.Net.NetworkCredential(smtpEmail, smtpToken);
+
+                        client.Send(mail);
+                    }
                 }
 
-                List<string> bccEmails = GetMailBCC();
-                foreach (string bcc in bccEmails)
-                {
-                    if (!string.IsNullOrWhiteSpace(bcc)) mail.Bcc.Add(bcc.Trim());
-                }
-
-                mail.Subject = subject;
-                mail.Body = bodyHtml;
-                mail.IsBodyHtml = true;
-
-                using (System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient("smtp.gmail.com"))
-                {
-                    client.Port = 587;
-                    client.EnableSsl = true;
-                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    client.UseDefaultCredentials = false;
-
-                    client.Credentials = new System.Net.NetworkCredential("fadliadtyas10@gmail.com", "mucrpripdhcnmseu");
-
-                    client.Send(mail);
-                }
-
-                System.Diagnostics.Debug.WriteLine($"EMAIL SENT successfully to {toName} via SP for Ref: {reportID}");
+                System.Diagnostics.Debug.WriteLine($"EMAIL SENT successfully to {toName} (Ref: {reportID})");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"EMAIL SEND FAILED via SP: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"EMAIL SEND FAILED: {ex.Message}");
             }
         }
 
